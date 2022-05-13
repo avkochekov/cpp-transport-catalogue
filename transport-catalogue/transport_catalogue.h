@@ -61,16 +61,16 @@ namespace catalogue {
 
     public:
         ///[\brief] Добавление новой остановки
-        void AddStop(const std::string_view name, const Coordinates);
+        void AddStop(const std::string_view name, const Coordinates &);
         ///[\brief] Добавляет новоый маршрут
         template<typename Container>
-        void AddBus(const std::string_view name, const RouteType type, const Container stops);
+        void AddBus(const std::string_view name, const RouteType type, const Container &stops);
         ///[\brief] Добавление расстояния между остановками
         void AddDistance(const std::string_view from, const std::string_view to, const double distance);
         std::optional<Stop> FindStop(const std::string_view) const;
         std::optional<Bus> FindBus(const std::string_view) const;
-        std::optional<info::Stop> AboutStop(const std::string_view) const;
-        std::optional<info::Bus> AboutBus(const std::string_view) const;
+        std::optional<info::Stop> GetStopInfo(const std::string_view) const;
+        std::optional<info::Bus> GetBusInfo(const std::string_view) const;
 
     private:
         std::deque<Stop> stops;
@@ -86,7 +86,7 @@ namespace catalogue {
 
     //======================================================================
     template<typename Container>
-    inline void TransportCatalogue::AddBus(const std::string_view name, const RouteType type, const Container stops_)
+    inline void TransportCatalogue::AddBus(const std::string_view name, const RouteType type, const Container &stops_)
     {
         assert(!name.empty());
         assert(stops_.size() > 1);

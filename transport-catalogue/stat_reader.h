@@ -9,11 +9,12 @@
 
 namespace catalogue{
     namespace reader {
-        class StatRaeader {
+        class StatReader {
         public:
-            StatRaeader(TransportCatalogue& catalogue, std::istream& stream = std::cin) : catalogue{catalogue}, stream{stream} {};
+            StatReader(TransportCatalogue& catalogue, std::istream &istream = std::cin, std::ostream &ostream = std::cout)
+                : catalogue{catalogue}, istream{istream}, ostream{ostream} {};
 
-            void ReadQueues(size_t count, std::istream& = std::cin) const;
+            void ReadQueues() const;
 
             void GetBus(const std::string_view queue) const;
             void GetStop(const std::string_view queue) const;
@@ -22,7 +23,8 @@ namespace catalogue{
             std::string_view Simplified(const std::string_view) const;
 
             TransportCatalogue &catalogue;
-            std::istream& stream;
+            std::istream& istream;
+            std::ostream& ostream;
         };
     }
 }

@@ -9,10 +9,11 @@
 
 namespace catalogue{
     namespace reader {
-        class InputRaeader {
+        class InputReader {
         public:
-            InputRaeader(TransportCatalogue& catalogue, std::istream& stream = std::cin) : catalogue{catalogue}, stream{stream} {};
-            void ReadQueues(size_t count, std::istream& = std::cin);
+            InputReader(TransportCatalogue &catalogue, std::istream &istream = std::cin, std::ostream &ostream = std::cout)
+                : catalogue{catalogue}, istream{istream}, ostream{ostream} {};
+            void ReadQueues();
 
         private:
             void ReadStops(const std::vector<std::string>& queue);
@@ -25,7 +26,8 @@ namespace catalogue{
             std::deque<std::string_view> Split(const std::string_view text, const std::string_view separator);
 
             TransportCatalogue &catalogue;
-            std::istream& stream;
+            std::istream& istream;
+            std::ostream& ostream;
         };
     }
 }

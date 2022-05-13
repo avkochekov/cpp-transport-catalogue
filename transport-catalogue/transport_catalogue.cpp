@@ -10,7 +10,7 @@ static constexpr unsigned int maxRouteDistance = 1'000'000;
 
 using namespace::catalogue;
 
-void TransportCatalogue::AddStop(const std::string_view name, Coordinates coord)
+void TransportCatalogue::AddStop(const std::string_view name, const Coordinates &coord)
 {
     assert(!name.empty());
     stops.push_back({std::string(name), coord});
@@ -34,21 +34,19 @@ std::optional<TransportCatalogue::Stop> TransportCatalogue::FindStop(const std::
 {
     if (stopname_to_stop.count(name)){
         return *stopname_to_stop.at(name);
-    } else {
-        return std::nullopt;
     }
+    return std::nullopt;
 }
 
 std::optional<TransportCatalogue::Bus> TransportCatalogue::FindBus(const std::string_view name) const
 {
     if (busname_to_bus.count(name)){
         return *busname_to_bus.at(name);
-    } else {
-        return std::nullopt;
     }
+    return std::nullopt;
 }
 
-std::optional<info::Stop> TransportCatalogue::AboutStop(const std::string_view name) const
+std::optional<info::Stop> TransportCatalogue::GetStopInfo(const std::string_view name) const
 {
     const auto &bus = FindStop(name);
     if (bus == std::nullopt){
@@ -70,7 +68,7 @@ std::optional<info::Stop> TransportCatalogue::AboutStop(const std::string_view n
     }
 }
 
-std::optional<info::Bus> TransportCatalogue::AboutBus(const std::string_view name) const
+std::optional<info::Bus> TransportCatalogue::GetBusInfo(const std::string_view name) const
 {
     const auto &bus = FindBus(name);
     if (bus == std::nullopt){

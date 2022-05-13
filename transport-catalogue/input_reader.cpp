@@ -18,8 +18,12 @@ static const std::unordered_map<RouteType, char> route_type_separator{
     {RouteType::Linear, '>'},
 };
 
-void InputRaeader::ReadQueues(size_t queue_count, std::istream &stream)
+void InputReader::ReadQueues()
 {
+    std::string queue;
+    std::getline(istream, queue);
+    size_t queue_count = std::stod(queue);
+
     std::vector<std::string> stop_queues;
     std::vector<std::string> bus_queues;
     bus_queues.reserve(queue_count);
@@ -27,7 +31,7 @@ void InputRaeader::ReadQueues(size_t queue_count, std::istream &stream)
 
     while (queue_count --> 0){
         std::string queue;
-        std::getline(stream, queue);
+        std::getline(istream, queue);
         if (queue.empty()){
             ++queue_count;
             continue;
@@ -45,7 +49,7 @@ void InputRaeader::ReadQueues(size_t queue_count, std::istream &stream)
     ReadBuses(bus_queues);
 }
 
-void InputRaeader::ReadStops(const std::vector<std::string>& queues)
+void InputReader::ReadStops(const std::vector<std::string>& queues)
 {
     std::list<std::tuple<std::string_view, std::string_view, double>> distances;
 
@@ -76,7 +80,7 @@ void InputRaeader::ReadStops(const std::vector<std::string>& queues)
     }
 }
 
-void InputRaeader::ReadBuses(const std::vector<std::string>& queues)
+void InputReader::ReadBuses(const std::vector<std::string>& queues)
 {
     for (const auto &queue : queues){
         auto tmp = Split(queue, QuerySeparator);
@@ -96,7 +100,7 @@ void InputRaeader::ReadBuses(const std::vector<std::string>& queues)
     }
 }
 
-std::vector<std::string> InputRaeader::ReadStops(std::string_view queue, const char separator)
+std::vector<std::string> InputReader::ReadStops(std::string_view queue, const char separator)
 {
     std::vector<std::string> stops;
     size_t pos = -1;
@@ -108,7 +112,7 @@ std::vector<std::string> InputRaeader::ReadStops(std::string_view queue, const c
     return stops;
 }
 
-std::string_view InputRaeader::Simplified(const std::string_view text)
+std::string_view InputReader::Simplified(const std::string_view text)
 {
     assert(!text.empty());
 
@@ -120,7 +124,7 @@ std::string_view InputRaeader::Simplified(const std::string_view text)
     return text.substr(left, right - left + 1);
 }
 
-std::deque<std::string_view> InputRaeader::Split(const std::string_view text, const char separator)
+std::deque<std::string_view> InputReader::Split(const std::string_view text, const char separator)
 {
     std::deque<std::string_view> res;
     auto last = 0;
@@ -133,7 +137,7 @@ std::deque<std::string_view> InputRaeader::Split(const std::string_view text, co
     return res;
 }
 
-std::deque<std::string_view> InputRaeader::Split(const std::string_view text, const std::string_view separator)
+std::deque<std::string_view> InputReader::Split(const std::string_view text, const std::string_view separator)
 {
     std::deque<std::string_view> res;
     auto last = 0;

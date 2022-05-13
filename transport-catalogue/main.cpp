@@ -9,14 +9,11 @@ using namespace std;
 int main()
 {
     catalogue::TransportCatalogue transport_catalogue;
-    catalogue::reader::InputRaeader input_reader(transport_catalogue);
-    catalogue::reader::StatRaeader stat_reader(transport_catalogue);
+    catalogue::reader::InputReader input_reader(transport_catalogue);
+    catalogue::reader::StatReader stat_reader(transport_catalogue);
 
-    size_t query_count;
-    std::cin >> query_count;
-    input_reader.ReadQueues(query_count);
+    input_reader.ReadQueues();
+    stat_reader.ReadQueues();
 
-    std::cin >> query_count;
-    stat_reader.ReadQueues(query_count);
     return 0;
 }

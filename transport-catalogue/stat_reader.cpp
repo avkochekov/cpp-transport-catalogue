@@ -8,11 +8,14 @@ static const std::string BusQueryIdentifier = "Bus";
 static const std::string StopQueryIdentifier = "Stop";
 static const std::string DistanceSeparator = " to ";
 
-void StatRaeader::ReadQueues(size_t queue_count, std::istream &stream) const
+void StatReader::ReadQueues() const
 {
+    std::string queue;
+    std::getline(istream, queue);
+    size_t queue_count = std::stod(queue);
+
     while (queue_count --> 0){
-        std::string queue;
-        std::getline(stream, queue);
+        std::getline(istream, queue);
         if (queue.empty()){
             ++queue_count;
             continue;
@@ -27,44 +30,44 @@ void StatRaeader::ReadQueues(size_t queue_count, std::istream &stream) const
     }
 }
 
-void StatRaeader::GetBus(const std::string_view queue) const
+void StatReader::GetBus(const std::string_view queue) const
 {
     const std::string_view name = Simplified(queue);
-    const auto &info = this->catalogue.AboutBus(name);
-    std::cout << "Bus " << name << ": ";
+    const auto &info = this->catalogue.GetBusInfo(name);
+    ostream << "Bus " << name << ": ";
     if (info == std::nullopt){
-        std::cout << "not found";
+        ostream << "not found";
     } else {
-        std::cout << info->stops_on_route << " stops on route, ";
-        std::cout << info->unique_stops << " unique stops, ";
-        std::cout << std::setprecision(6) << info->route_length << " route length, ";
-        std::cout << std::setprecision(6) << info->curvature << " curvature";
+        ostream << info->stops_on_route << " stops on route, ";
+        ostream << info->unique_stops << " unique stops, ";
+        ostream << std::setprecision(6) << info->route_length << " route length, ";
+        ostream << std::setprecision(6) << info->curvature << " curvature";
     }
-    std::cout << std::endl;
+    ostream << std::endl;
 }
 
-void StatRaeader::GetStop(const std::string_view queue) const
+void StatReader::GetStop(const std::string_view queue) const
 {
     const std::string_view name = Simplified(queue);
-    const auto &info = this->catalogue.AboutStop(name);
-    std::cout << "Stop " << name << ": ";
+    const auto &info = this->catalogue.GetStopInfo(name);
+    ostream << "Stop " << name << ": ";
     if (info == std::nullopt){
-        std::cout << "not found";
+        ostream << "not found";
     } else{
         const auto &buses = info->buses;
         if (buses.empty()){
-            std::cout << "no buses";
+            ostream << "no buses";
         } else {
-            std::cout << "buses";
+            ostream << "buses";
             for (const auto& bus : buses){
-                std::cout << ' ' << bus;
+                ostream << ' ' << bus;
             }
         }
     }
-    std::cout << std::endl;
+    ostream << std::endl;
 }
 
-std::string_view StatRaeader::Simplified(const std::string_view text) const
+std::string_view StatReader::Simplified(const std::string_view text) const
 {
     assert(!text.empty());
 
