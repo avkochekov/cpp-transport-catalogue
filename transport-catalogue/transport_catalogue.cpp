@@ -10,7 +10,7 @@ static constexpr unsigned int maxRouteDistance = 1'000'000;
 
 using namespace::catalogue;
 
-void TransportCatalogue::AddStop(const std::string_view name, const Coordinates &coord)
+void TransportCatalogue::AddStop(const std::string_view name, const geo::Coordinates &coord)
 {
     assert(!name.empty());
     stops.push_back({std::string(name), coord});
@@ -46,10 +46,10 @@ std::optional<TransportCatalogue::Bus> TransportCatalogue::FindBus(const std::st
     return std::nullopt;
 }
 
-std::optional<info::Stop> TransportCatalogue::GetStopInfo(const std::string_view name) const
+std::optional<StopStat> TransportCatalogue::GetStopInfo(const std::string_view name) const
 {
-    const auto &bus = FindStop(name);
-    if (bus == std::nullopt){
+    const auto &stop = FindStop(name);
+    if (stop == std::nullopt){
         return std::nullopt;
     } else {
         auto& buses = stop_to_buses.at(std::string(name));
@@ -64,11 +64,11 @@ std::optional<info::Stop> TransportCatalogue::GetStopInfo(const std::string_view
 
         std::sort(res.begin(), res.end());
         res.erase(std::unique(res.begin(), res.end()), res.end());
-        return info::Stop{std::string(name), res};
+        return StopStat{std::string(name), res, stopname_to_stop.at(name)->coordinates};
     }
 }
 
-std::optional<info::Bus> TransportCatalogue::GetBusInfo(const std::string_view name) const
+std::optional<BusStat> TransportCatalogue::GetBusInfo(const std::string_view name) const
 {
     const auto &bus = FindBus(name);
     if (bus == std::nullopt){
@@ -79,8 +79,8 @@ std::optional<info::Bus> TransportCatalogue::GetBusInfo(const std::string_view n
         auto l_iter = bus->stops.begin();
         auto r_iter = std::next(l_iter);
         while (r_iter != bus->stops.end()){
-            geo_length += ComputeDistance({(*l_iter)->coordinates.lat, (*l_iter)->coordinates.lng},
-                                         {(*r_iter)->coordinates.lat, (*r_iter)->coordinates.lng});
+            geo_length += geo::ComputeDistance({(*l_iter)->coordinates.lat, (*l_iter)->coordinates.lng},
+                                               {(*r_iter)->coordinates.lat, (*r_iter)->coordinates.lng});
             if (stops_to_distance.count({(*l_iter), (*r_iter)})){
                 route_length += stops_to_distance.at({(*l_iter), (*r_iter)});
             } else if (stops_to_distance.count({(*r_iter), (*l_iter)})){
@@ -99,7 +99,7 @@ std::optional<info::Bus> TransportCatalogue::GetBusInfo(const std::string_view n
 
 
 
-        if (bus->type == Circle){
+        if (bus->type == Linear){
             stops_count = stops_count * 2 - 1;
             geo_length *= 2;
 
@@ -119,8 +119,57 @@ std::optional<info::Bus> TransportCatalogue::GetBusInfo(const std::string_view n
             }
         }
 
-        return info::Bus{std::string(name), stops_count, uniq_stops_count, route_length, route_length / geo_length};
+        const auto &bus_stops_ptr = busname_to_bus.at(name)->stops;
+        std::vector<std::string_view> bus_stops(bus_stops_ptr.size());
+        std::transform(bus_stops_ptr.begin(), bus_stops_ptr.end(),
+                       bus_stops.begin(),
+                       [](const Stop* value){ return value->name; });
+
+        return BusStat{std::string(name), stops_count, uniq_stops_count, route_length, route_length / geo_length, bus_stops};
     }
+}
+
+RouteType TransportCatalogue::GetBusType(const std::string_view name) const
+{
+    return busname_to_bus.at(name)->type;
+}
+
+std::vector<std::string> TransportCatalogue::GetStops() const
+{
+    std::vector<std::string> res(stops.size());
+    std::transform(stops.begin(), stops.end(),
+                   res.begin(),
+                   [](const Stop& val){ return std::string(val.name); });
+    return res;
+}
+
+std::optional<Coordinates> TransportCatalogue::GetStopCoordinates(const std::string_view name) const
+{
+    if (stopname_to_stop.count(name))
+        return stopname_to_stop.at(name)->coordinates;
+    return std::nullopt;
+}
+
+std::vector<std::string> TransportCatalogue::GetBuses() const
+{
+    std::vector<std::string> res(buses.size());
+    std::transform(buses.begin(), buses.end(),
+                   res.begin(),
+                   [](const Bus& val){ return val.name; });
+    return res;
+}
+
+std::optional<std::vector<std::string>> TransportCatalogue::GetBusStops(const std::string_view name) const
+{
+    if (busname_to_bus.count(name)){
+        const auto &stops = busname_to_bus.at(name)->stops;
+        std::vector<std::string> res(stops.size());
+        std::transform(stops.begin(), stops.end(),
+                       res.begin(),
+                       [](const Stop* val){ return val->name; });
+        return res;
+    }
+    return std::nullopt;
 }
 
 bool TransportCatalogue::Stop::operator==(const std::string &name) const {

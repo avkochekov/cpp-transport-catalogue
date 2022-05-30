@@ -3,42 +3,19 @@
 
 #include <cassert>
 #include <execution>
-#include <string>
 #include <unordered_map>
-#include <vector>
 #include <list>
 #include <deque>
 #include <tuple>
 #include <optional>
 
-#include "geo.h"
+#include "domain.h"
 
 namespace catalogue {
-
-    enum RouteType{
-        Linear,
-        Circle,
-    };
-
-    namespace info {
-        struct Stop{
-            std::string name;
-            std::vector<std::string> buses;
-        };
-
-        struct Bus{
-            std::string name;
-            size_t stops_on_route;
-            size_t unique_stops;
-            double route_length;
-            double curvature;
-        };
-    }
-
     class TransportCatalogue{
         struct Stop{
             std::string name;
-            Coordinates coordinates;
+            geo::Coordinates coordinates;
 
             bool operator==(const std::string& name) const;
             bool operator==(const Stop&) const;
@@ -61,7 +38,7 @@ namespace catalogue {
 
     public:
         ///[\brief] Добавление новой остановки
-        void AddStop(const std::string_view name, const Coordinates &);
+        void AddStop(const std::string_view name, const geo::Coordinates &);
         ///[\brief] Добавляет новоый маршрут
         template<typename Container>
         void AddBus(const std::string_view name, const RouteType type, const Container &stops);
@@ -69,8 +46,15 @@ namespace catalogue {
         void AddDistance(const std::string_view from, const std::string_view to, const double distance);
         std::optional<Stop> FindStop(const std::string_view) const;
         std::optional<Bus> FindBus(const std::string_view) const;
-        std::optional<info::Stop> GetStopInfo(const std::string_view) const;
-        std::optional<info::Bus> GetBusInfo(const std::string_view) const;
+        std::optional<StopStat> GetStopInfo(const std::string_view) const;
+        std::optional<BusStat> GetBusInfo(const std::string_view) const;
+        RouteType GetBusType(const std::string_view) const;
+
+        std::vector<std::string> GetStops() const;
+        std::optional<Coordinates> GetStopCoordinates(const std::string_view) const;
+
+        std::vector<std::string> GetBuses() const;
+        std::optional<std::vector<std::string> > GetBusStops(const std::string_view) const;
 
     private:
         std::deque<Stop> stops;

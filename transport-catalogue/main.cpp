@@ -1,19 +1,25 @@
-#include "transport_catalogue.h"
-#include "input_reader.h"
-#include "stat_reader.h"
-#include <iostream>
 #include <sstream>
+#include <iostream>
 
-using namespace std;
+#include "json_reader.h"
+#include "request_handler.h"
 
-int main()
-{
-    catalogue::TransportCatalogue transport_catalogue;
-    catalogue::reader::InputReader input_reader(transport_catalogue);
-    catalogue::reader::StatReader stat_reader(transport_catalogue);
+using json::Document;
 
-    input_reader.ReadQueues();
-    stat_reader.ReadQueues();
+int main() {
+    std::istream &istream = std::cin;
+    std::ostream &ostream = std::cout;
 
-    return 0;
+    Document doc = json::Load(istream);
+    const json::Node &node = doc.GetRoot();
+    const json::Dict &requests = node.AsMap();
+
+    TransportCatalogue catalogue;
+    MapRenderer renderer;
+
+    RequestHandler handler(catalogue, renderer);
+
+    Base_Request(requests.at("base_requests"), catalogue);
+    Render_Settings_Request(requests.at("render_settings"), renderer);
+    Stat_Request(requests.at("stat_requests"), catalogue, renderer, ostream);
 }
