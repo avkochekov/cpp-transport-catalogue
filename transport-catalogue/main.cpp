@@ -19,7 +19,7 @@ int main() {
 
     RequestHandler handler(catalogue, renderer);
 
-    Base_Request(requests.at("base_requests"), catalogue);
-    Render_Settings_Request(requests.at("render_settings"), renderer);
-    Stat_Request(requests.at("stat_requests"), catalogue, renderer, ostream);
+    BaseRequestHandler(requests.at("base_requests"), catalogue);
+    RenderSettingsRequestHandler(requests.at("render_settings"), renderer);
+    StatRequestHandler(requests.at("stat_requests"), catalogue, renderer, ostream);
 }

@@ -44,17 +44,17 @@ namespace catalogue {
         void AddBus(const std::string_view name, const RouteType type, const Container &stops);
         ///[\brief] Добавление расстояния между остановками
         void AddDistance(const std::string_view from, const std::string_view to, const double distance);
-        std::optional<Stop> FindStop(const std::string_view) const;
-        std::optional<Bus> FindBus(const std::string_view) const;
-        std::optional<StopStat> GetStopInfo(const std::string_view) const;
-        std::optional<BusStat> GetBusInfo(const std::string_view) const;
-        RouteType GetBusType(const std::string_view) const;
+        std::optional<Stop> FindStop(const std::string_view stop_name) const;
+        std::optional<Bus> FindBus(const std::string_view bus_name) const;
+        std::optional<StopStat> GetStopInfo(const std::string_view stop_name) const;
+        std::optional<BusStat> GetBusInfo(const std::string_view bus_name) const;
+        RouteType GetBusType(const std::string_view bus_name) const;
 
         std::vector<std::string> GetStops() const;
-        std::optional<Coordinates> GetStopCoordinates(const std::string_view) const;
+        std::optional<Coordinates> GetStopCoordinates(const std::string_view stop_name) const;
 
         std::vector<std::string> GetBuses() const;
-        std::optional<std::vector<std::string> > GetBusStops(const std::string_view) const;
+        std::optional<std::vector<std::string> > GetBusStops(const std::string_view bus_name) const;
 
     private:
         std::deque<Stop> stops;

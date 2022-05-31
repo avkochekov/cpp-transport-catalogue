@@ -12,11 +12,11 @@ RequestHandler::RequestHandler(catalogue::TransportCatalogue &db, renderer::MapR
     , renderer_{renderer} {
 }
 
-std::optional<BusStat> RequestHandler::GetBusStat(const std::string_view &bus_name) const
-{
-    (void)bus_name;
-    return std::nullopt;
-}
+//std::optional<BusStat> RequestHandler::GetBusStat(const std::string_view &bus_name) const
+//{
+//    (void)bus_name;
+//    return std::nullopt;
+//}
 
 const std::unordered_set<std::string> RequestHandler::GetBusesByStop(const std::string_view &stop_name) const
 {

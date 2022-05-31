@@ -19,15 +19,10 @@ public:
     using runtime_error::runtime_error;
 };
 
-class Node {
+using NodeVariant = std::variant<std::nullptr_t, Array, Dict, bool, int, double, std::string>;
+class Node final : private NodeVariant{
 public:
-    using Value = std::variant<std::nullptr_t, Array, Dict, bool, int, double, std::string>;
-
-    Node() = default;
-
-    template<typename T>
-    Node(T value) : value_(std::move(value)) {}
-
+    using variant::variant;
 
     int AsInt() const;
     bool AsBool() const;
@@ -48,10 +43,17 @@ public:
     bool operator==(const Node& other) const;
     bool operator!=(const Node& other) const;
 
-    const Value& GetValue() const;
+    const NodeVariant& GetValue() const;
+};
 
-private:
-    Value value_;
+class NodeVisitor{
+    void operator()(std::nullptr_t, std::ostream& stream);
+    void operator()(Array, std::ostream& stream);
+    void operator()(Dict value, std::ostream& stream);
+    void operator()(bool, std::ostream& stream);
+    void operator()(int, std::ostream& stream);
+    void operator()(double, std::ostream& stream);
+    void operator()(std::string, std::ostream& stream);
 };
 
 // Шаблон, подходящий для вывода double и int
@@ -81,7 +83,7 @@ void PrintValue(Array value, std::ostream& out);
 // Перегрузка функции PrintValue для вывода значений Dict|Map
 void PrintValue(Dict value, std::ostream& out);
 
-void PrintNode(const Node& node, std::ostream& out);
+void PrintNode(const Node &node, std::ostream& out);
 
 
 class Document {

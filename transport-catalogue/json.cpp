@@ -208,7 +208,7 @@ Node LoadState(istream& input) {
     RemoveEscapeSequencies(line);
     RemoveBorderSpaces(line);
     if (line == "null")
-        return Node(Node::Value());
+        return Node(Node());
     else if (line == "true")
         return Node(true);
     else if (line == "false")
@@ -241,7 +241,7 @@ Node LoadNode(istream& input) {
 }  // namespace
 
 bool Node::IsInt() const {
-    return std::holds_alternative<int>(value_);
+    return std::holds_alternative<int>(*this);
 }
 
 bool Node::IsDouble() const {
@@ -249,76 +249,77 @@ bool Node::IsDouble() const {
 }
 
 bool Node::IsPureDouble() const {
-    return std::holds_alternative<double>(value_);
+    return std::holds_alternative<double>(*this);
 }
 
 bool Node::IsBool() const {
-    return std::holds_alternative<bool>(value_);
+    return std::holds_alternative<bool>(*this);
 }
 
 bool Node::IsString() const {
-    return std::holds_alternative<std::string>(value_);
+    return std::holds_alternative<std::string>(*this);
 }
 
 bool Node::IsNull() const {
-    return std::holds_alternative<nullptr_t>(value_);
+    return std::holds_alternative<nullptr_t>(*this);
 }
 
 bool Node::IsArray() const {
-    return std::holds_alternative<Array>(value_);
+    return std::holds_alternative<Array>(*this);
 }
 
 bool Node::IsMap() const {
-    return std::holds_alternative<Dict>(value_);
+    return std::holds_alternative<Dict>(*this);
 }
 
 bool Node::operator==(const Node &other) const {
-    return value_ == other.value_;
+    return *this == other;
 }
 
 bool Node::operator!=(const Node &other) const {
-    return value_ != other.value_;
+    return *this != other;
 }
 
-const Node::Value &Node::GetValue() const {
-    return value_;
+const NodeVariant &Node::GetValue() const
+{
+    return *this;
 }
 
 int Node::AsInt() const {
     if (IsInt())
-        return std::get<int>(value_);
+        return std::get<int>(*this);
     throw std::logic_error("invalid value - int");
 }
 
 bool Node::AsBool() const {
     if (IsBool())
-        return std::get<bool>(value_);
+        return std::get<bool>(*this);
     throw std::logic_error("invalid value - bool");
 }
 
 double Node::AsDouble() const {
     if (IsPureDouble())
-        return std::get<double>(value_);
+        return std::get<double>(*this);
     else if (IsInt())
-        return std::get<int>(value_) * 1.;
+        return std::get<int>(*this) * 1.;
     throw std::logic_error("invalid value - double");
 }
 
 const string &Node::AsString() const {
     if (IsString())
-        return std::get<std::string>(value_);
+        return std::get<std::string>(*this);
     throw std::logic_error("invalid value - string");
 }
 
 const Array& Node::AsArray() const {
     if (IsArray())
-        return std::get<Array>(value_);
+        return std::get<Array>(*this);
     throw std::logic_error("invalid value - Array");
 }
 
 const Dict& Node::AsMap() const {
     if (IsMap())
-        return std::get<Dict>(value_);
+        return std::get<Dict>(*this);
     throw std::logic_error("invalid value - Map|Dict");
 }
 
@@ -409,6 +410,8 @@ void PrintValue(Dict value, std::ostream &out) {
     }
     out << "}";
 }
+
+
 
 void PrintNode(const Node &node, std::ostream &out) {
     std::visit(

@@ -12,9 +12,6 @@
 
 using catalogue::TransportCatalogue;
 
-svg::Color Render_Color(const json::Node& node);
-void Base_Request(const json::Node &node, TransportCatalogue &catalogue);
-void Stat_Request(const json::Node &node, TransportCatalogue &catalogue, MapRenderer& renderer, std::ostream &stream);
-void Render_Settings_Request(const json::Node &node, MapRenderer &render);
-void Render_Map_Request(const TransportCatalogue &catalogue, MapRenderer &render);
-//    FillCatalogue()
+void BaseRequestHandler(const json::Node &node, TransportCatalogue &catalogue);
+void StatRequestHandler(const json::Node &node, TransportCatalogue &catalogue, MapRenderer& renderer, std::ostream &stream);
+void RenderSettingsRequestHandler(const json::Node &node, MapRenderer &render);

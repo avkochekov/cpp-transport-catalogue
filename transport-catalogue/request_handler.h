@@ -28,8 +28,8 @@ public:
     // MapRenderer понадобится в следующей части итогового проекта
     RequestHandler(catalogue::TransportCatalogue &db, renderer::MapRenderer &renderer);
 
-    // Возвращает информацию о маршруте (запрос Bus)
-    std::optional<BusStat> GetBusStat(const std::string_view& bus_name) const;
+//    // Возвращает информацию о маршруте (запрос Bus)
+//    std::optional<BusStat> GetBusStat(const std::string_view& bus_name) const;
 
     // Возвращает маршруты, проходящие через остановку
     const std::unordered_set<std::string> GetBusesByStop(const std::string_view& stop_name) const;
