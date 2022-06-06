@@ -28,17 +28,28 @@ public:
     // MapRenderer понадобится в следующей части итогового проекта
     RequestHandler(catalogue::TransportCatalogue &db, renderer::MapRenderer &renderer);
 
-//    // Возвращает информацию о маршруте (запрос Bus)
-//    std::optional<BusStat> GetBusStat(const std::string_view& bus_name) const;
+    void AddStop(const std::string& name, const double lat, const double lon);
+    void AddDistanceBetweenStops(const std::string& from, const std::string& to, const double distance);
+    template<typename Container>
+    void AddBus(const std::string& name, const bool is_roundtrip, const Container &stops);
+
+    // Возвращает информацию о маршруте (запрос Bus)
+    std::optional<BusStat> GetBusStat(const std::string_view& bus_name) const;
 
     // Возвращает маршруты, проходящие через остановку
-    const std::unordered_set<std::string> GetBusesByStop(const std::string_view& stop_name) const;
+    const std::optional<StopStat> GetStopStat(const std::string_view& stop_name) const;
 
     // Этот метод будет нужен в следующей части итогового проекта
     void RenderMap(std::ostream &stream) const;
 
 private:
     // RequestHandler использует агрегацию объектов "Транспортный Справочник" и "Визуализатор Карты"
-    const catalogue::TransportCatalogue& catalogue_;
+    catalogue::TransportCatalogue& catalogue_;
     renderer::MapRenderer& renderer_;
 };
+
+template<typename Container>
+inline void RequestHandler::AddBus(const std::string &name, const bool is_roundtrip, const Container &stops)
+{
+    catalogue_.AddBus(name, is_roundtrip ? RouteType::Circle : RouteType::Linear, stops);
+}

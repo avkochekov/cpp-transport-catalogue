@@ -24,69 +24,7 @@ svg::Color RenderColor(const json::Node &node)
     }
 }
 
-void RenderMapRequestHandler(const TransportCatalogue &catalogue, MapRenderer &render)
-{
-    using namespace svg;
-    using svg::Circle;
-
-    std::unordered_set<std::string> unique_stops;
-    std::vector<std::string> buses = catalogue.GetBuses();
-    std::unordered_map<std::string, std::vector<std::string>> buses_to_stops;
-    for (const auto &bus : buses){
-        auto bus_stops = *catalogue.GetBusStops(bus);
-        unique_stops.merge(std::unordered_set<std::string>(bus_stops.begin(), bus_stops.end()));
-        buses_to_stops[bus] = *catalogue.GetBusStops(bus);
-    }
-    std::sort(buses.begin(), buses.end());
-    std::vector<std::string> stops(unique_stops.begin(), unique_stops.end());
-    std::sort(stops.begin(), stops.end());
-
-    std::deque<Coordinates> stops_coordinates;
-    std::unordered_map<std::string_view, Coordinates*> stops_to_coordinates;
-    std::for_each(unique_stops.begin(), unique_stops.end(),
-                  [&catalogue, &stops_coordinates, &stops_to_coordinates](const std::string_view stop)
-    {
-        stops_coordinates.push_back(*catalogue.GetStopCoordinates(stop));
-        stops_to_coordinates[stop] = &stops_coordinates.back();
-    });
-
-    SphereProjector projector(stops_coordinates.begin(),
-                              stops_coordinates.end(),
-                              render.width,
-                              render.height,
-                              render.padding);
-
-
-    Document svg;
-    std::unordered_map<std::string, Point> stops_to_points;
-    for (const auto &stop : unique_stops){
-        stops_to_points[stop] = projector(*stops_to_coordinates.at(stop));
-    }
-
-    std::deque<Polyline> lines;
-    std::deque<Text> buses_names;
-
-    for (const auto &bus : buses){
-        if (buses_to_stops.at(bus).empty())
-            continue;
-
-        auto stops = std::move(buses_to_stops.at(bus));
-
-        std::vector<Point> stops_points(stops.size());
-        std::transform(std::execution::par,
-                       stops.begin(), stops.end(),
-                       stops_points.begin(),
-                       [&stops_to_points](auto &stop_name){ return stops_to_points[stop_name]; });
-
-        render.AddBusLine(bus, stops_points, catalogue.GetBusType(bus) == Linear);
-    }
-
-    for (const auto &stop : stops){
-        render.AddStopPoint(stop, stops_to_points.at(stop));
-    }
-}
-
-void BaseRequestHandler(const json::Node &node, catalogue::TransportCatalogue &catalogue)
+void BaseRequestHandler(const json::Node &node, RequestHandler &handler)
 {
     using namespace json;
     std::deque<Node> bus_nodes;
@@ -105,16 +43,16 @@ void BaseRequestHandler(const json::Node &node, catalogue::TransportCatalogue &c
 
     for (const Node &stop_node : stop_nodes){
         const auto &stop = stop_node.AsMap();
-        catalogue.AddStop(stop.at("name").AsString(), {
-                              stop.at("latitude").AsDouble(),
-                              stop.at("longitude").AsDouble()});
+        handler.AddStop(stop.at("name").AsString(),
+                        stop.at("latitude").AsDouble(),
+                        stop.at("longitude").AsDouble());
     }
 
     for (const Node &stop_node : stop_nodes){
         const auto &stop = stop_node.AsMap();
         const auto &from_stop = stop.at("name").AsString();
         for (const auto &[to_stop, distance_node] : stop.at("road_distances").AsMap()){
-            catalogue.AddDistance(from_stop, to_stop, distance_node.AsDouble());
+            handler.AddDistanceBetweenStops(from_stop, to_stop, distance_node.AsDouble());
         }
     }
 
@@ -128,13 +66,13 @@ void BaseRequestHandler(const json::Node &node, catalogue::TransportCatalogue &c
                        stops.begin(),
                        [](const Node &stop_node){ return stop_node.AsString(); });
 
-        catalogue.AddBus(bus.at("name").AsString(),
-                         bus.at("is_roundtrip").AsBool() ? RouteType::Circle : RouteType::Linear,
-                         stops);
+        handler.AddBus(bus.at("name").AsString(),
+                       bus.at("is_roundtrip").AsBool() ? RouteType::Circle : RouteType::Linear,
+                       stops);
     }
 }
 
-void StatRequestHandler(const json::Node &node, catalogue::TransportCatalogue &catalogue, MapRenderer &renderer, std::ostream& stream)
+void StatRequestHandler(const json::Node &node, RequestHandler &handler, std::ostream& stream)
 {
     using namespace json;
 
@@ -150,7 +88,7 @@ void StatRequestHandler(const json::Node &node, catalogue::TransportCatalogue &c
         result["request_id"] = dict.at("id").AsInt();
 
         if (dict.at("type").AsString() == "Bus"){
-            const auto &info = catalogue.GetBusInfo(dict.at("name").AsString());
+            const auto &info = handler.GetBusStat(dict.at("name").AsString());
             if (info == std::nullopt){
                 result["error_message"] = "not found";
             } else{
@@ -160,7 +98,7 @@ void StatRequestHandler(const json::Node &node, catalogue::TransportCatalogue &c
                 result["unique_stop_count"] = static_cast<int>(info->unique_stops);
             }
         } else if (dict.at("type").AsString() == "Stop"){
-            const auto &info = catalogue.GetStopInfo(dict.at("name").AsString());
+            const auto &info = handler.GetStopStat(dict.at("name").AsString());
             if (info == std::nullopt){
                 result["error_message"] = "not found";
             } else{
@@ -172,9 +110,8 @@ void StatRequestHandler(const json::Node &node, catalogue::TransportCatalogue &c
                 result["buses"] = buses_array;
             }
         } else if (dict.at("type").AsString() == "Map"){
-            RenderMapRequestHandler(catalogue, renderer);
             std::ostringstream ostream;
-            renderer.Render(ostream);
+            handler.RenderMap(ostream);
             result["map"] = ostream.str();
         } else {
             throw std::invalid_argument("JsonReader: invalid request type");

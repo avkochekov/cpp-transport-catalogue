@@ -12,6 +12,6 @@
 
 using catalogue::TransportCatalogue;
 
-void BaseRequestHandler(const json::Node &node, TransportCatalogue &catalogue);
-void StatRequestHandler(const json::Node &node, TransportCatalogue &catalogue, MapRenderer& renderer, std::ostream &stream);
+void BaseRequestHandler(const json::Node &node, RequestHandler &catalogue);
+void StatRequestHandler(const json::Node &node, RequestHandler& handler, std::ostream &stream);
 void RenderSettingsRequestHandler(const json::Node &node, MapRenderer &render);
