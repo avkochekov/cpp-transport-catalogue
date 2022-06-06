@@ -12,7 +12,7 @@ int main() {
 
     Document doc = json::Load(istream);
     const json::Node &node = doc.GetRoot();
-    const json::Dict &requests = node.AsMap();
+    const json::Dict &requests = node.AsDict();
 
     TransportCatalogue catalogue;
     MapRenderer renderer;

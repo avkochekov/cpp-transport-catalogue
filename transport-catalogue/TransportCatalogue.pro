@@ -11,6 +11,7 @@ SOURCES += \
 	geo.cpp \
 	json.cpp \
 	json_reader.cpp \
+        json_builder.cpp \
 	main.cpp \
 	map_renderer.cpp \
 	request_handler.cpp \
@@ -22,6 +23,7 @@ HEADERS += \
 	geo.h \
 	json.h \
 	json_reader.h \
+        json_builder.h \
 	map_renderer.h \
 	request_handler.h \
 	svg.h

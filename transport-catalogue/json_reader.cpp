@@ -1,4 +1,5 @@
 #include "json_reader.h"
+#include "json_builder.h"
 
 #include <sstream>
 
@@ -31,7 +32,7 @@ void BaseRequestHandler(const json::Node &node, RequestHandler &handler)
     std::deque<Node> stop_nodes;
 
     for (const Node &node : node.AsArray()){
-        auto &dict = node.AsMap();
+        auto &dict = node.AsDict();
         if (dict.at("type").AsString() == "Bus"){
             bus_nodes.push_back(dict);
         } else if (dict.at("type").AsString() == "Stop"){
@@ -42,22 +43,22 @@ void BaseRequestHandler(const json::Node &node, RequestHandler &handler)
     }
 
     for (const Node &stop_node : stop_nodes){
-        const auto &stop = stop_node.AsMap();
+        const auto &stop = stop_node.AsDict();
         handler.AddStop(stop.at("name").AsString(),
                         stop.at("latitude").AsDouble(),
                         stop.at("longitude").AsDouble());
     }
 
     for (const Node &stop_node : stop_nodes){
-        const auto &stop = stop_node.AsMap();
+        const auto &stop = stop_node.AsDict();
         const auto &from_stop = stop.at("name").AsString();
-        for (const auto &[to_stop, distance_node] : stop.at("road_distances").AsMap()){
+        for (const auto &[to_stop, distance_node] : stop.at("road_distances").AsDict()){
             handler.AddDistanceBetweenStops(from_stop, to_stop, distance_node.AsDouble());
         }
     }
 
     for (const Node &bus_node : bus_nodes){
-        const auto &bus = bus_node.AsMap();
+        const auto &bus = bus_node.AsDict();
 
         const auto &stops_node = bus.at("stops").AsArray();
         std::vector<std::string> stops(stops_node.size());
@@ -78,54 +79,55 @@ void StatRequestHandler(const json::Node &node, RequestHandler &handler, std::os
 
     const auto &nodes = node.AsArray();
 
-    Array results;
-    results.reserve(nodes.size());
+
+    Builder builder;
+    builder.StartArray();
 
     for (const Node &node : nodes){
-        auto &dict = node.AsMap();
+        auto &dict = node.AsDict();
 
-        Dict result;
-        result["request_id"] = dict.at("id").AsInt();
+        builder.StartDict();
+        builder.Key("request_id").Value(dict.at("id").AsInt());
 
         if (dict.at("type").AsString() == "Bus"){
             const auto &info = handler.GetBusStat(dict.at("name").AsString());
             if (info == std::nullopt){
-                result["error_message"] = "not found";
+                builder.Key("error_message").Value("not found");
             } else{
-                result["curvature"] = info->curvature;
-                result["route_length"] = info->route_length;
-                result["stop_count"] = static_cast<int>(info->stops_on_route);
-                result["unique_stop_count"] = static_cast<int>(info->unique_stops);
+                builder.Key("curvature").Value(info->curvature);
+                builder.Key("route_length").Value(info->route_length);
+                builder.Key("stop_count").Value(static_cast<int>(info->stops_on_route));
+                builder.Key("unique_stop_count").Value(static_cast<int>(info->unique_stops));
             }
         } else if (dict.at("type").AsString() == "Stop"){
             const auto &info = handler.GetStopStat(dict.at("name").AsString());
             if (info == std::nullopt){
-                result["error_message"] = "not found";
+                builder.Key("error_message").Value("not found");
             } else{
                 const auto &buses = info->buses;
                 Array buses_array(buses.size());
                 std::transform(buses.begin(), buses.end(),
                                buses_array.begin(),
                                [](const auto &value){ return Node{value}; });
-                result["buses"] = buses_array;
+                builder.Key("buses").Value(buses_array);
             }
         } else if (dict.at("type").AsString() == "Map"){
             std::ostringstream ostream;
             handler.RenderMap(ostream);
-            result["map"] = ostream.str();
+            builder.Key("map").Value(ostream.str());
         } else {
             throw std::invalid_argument("JsonReader: invalid request type");
         }
-
-        results.push_back(result);
+        builder.EndDict();
     }
-    if (!results.empty())
-        Print(Document(results), stream);
+    builder.EndArray();
+//    if (!results.empty())
+    Print(Document(builder.Build()), stream);
 }
 
 void RenderSettingsRequestHandler(const json::Node &node, renderer::MapRenderer &render)
 {
-    const auto &nodes = node.AsMap();
+    const auto &nodes = node.AsDict();
 
     render.width = nodes.at("width").AsDouble();
     render.height = nodes.at("height").AsDouble();
