@@ -46,15 +46,7 @@ json::Builder::DictItemContext &json::Builder::StartDict()
     if (nodes_stack_.empty())
         throw std::logic_error("start dict failed - invalid node");
 
-    Node *node = nodes_stack_.back();
-    if (node->IsNull()){
-        *node = Dict();
-    } else if (node->IsArray()){
-        node->AsArray().emplace_back(Dict());
-        nodes_stack_.push_back(&node->AsArray().back());
-    } else {
-        throw std::logic_error("value insertion failed - invalid node type - not null|array");
-    }
+    StartContainer(nodes_stack_.back(), Dict());
     static DictItemContext context = DictItemContext(*this);
     return context;
 }
@@ -64,15 +56,7 @@ json::Builder::ArrayItemContext &json::Builder::StartArray()
     if (nodes_stack_.empty())
         throw std::logic_error("start array failed - invalid node");
 
-    Node *node = nodes_stack_.back();
-    if (node->IsNull()){
-        *node = Array();
-    } else if (node->IsArray()){
-        node->AsArray().emplace_back(Array());
-        nodes_stack_.push_back(&node->AsArray().back());
-    } else {
-        throw std::logic_error("value insertion failed - invalid node type - not null|array");
-    }
+    StartContainer(nodes_stack_.back(), Array());
     static ArrayItemContext context = ArrayItemContext(*this);
     return context;
 }

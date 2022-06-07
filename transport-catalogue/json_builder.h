@@ -11,6 +11,9 @@ class Builder{
     Node root_node_;
     std::vector<Node*> nodes_stack_;
 
+    template<typename Container>
+    Builder& StartContainer(Node *node, Container &&container);
+
 public:
     class DictItemContext;
     class DictValueContext;
@@ -55,6 +58,20 @@ public:
         ArrayItemContext& StartArray();
     };
 };
+
+template<typename Container>
+inline Builder &Builder::StartContainer(Node *node, Container &&container)
+{
+    if (node->IsNull()){
+        *node = std::move(container);
+    } else if (node->IsArray()){
+        node->AsArray().emplace_back(std::move(container));
+        nodes_stack_.push_back(&node->AsArray().back());
+    } else {
+        throw std::logic_error("value insertion failed - invalid node type - not null|array");
+    }
+    return *this;
+}
 
 
 }
