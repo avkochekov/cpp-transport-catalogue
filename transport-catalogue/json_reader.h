@@ -4,6 +4,7 @@
 
 #include "json.h"
 #include "request_handler.h"
+#include "json_builder.h"
 
 /*
  * Здесь можно разместить код наполнения транспортного справочника данными из JSON,
@@ -11,7 +12,20 @@
  */
 
 using catalogue::TransportCatalogue;
+using json::Node;
 
-void BaseRequestHandler(const json::Node &node, RequestHandler &catalogue);
-void StatRequestHandler(const json::Node &node, RequestHandler& handler, std::ostream &stream);
-void RenderSettingsRequestHandler(const json::Node &node, MapRenderer &render);
+class JsonReader{
+    RequestHandler &handler;
+
+    Node StatRequestBus(const json::Dict &dict);
+    Node StatRequestStop(const json::Dict &dict);
+    Node StatRequestMap(const json::Dict &dict);
+public:
+    JsonReader(RequestHandler &handler);
+
+    void ParseRequest(std::istream &input = std::cin, std::ostream &output = std::cout);
+
+    void BaseRequestHandler(const json::Node &node);
+    void StatRequestHandler(const json::Node &node, std::ostream &stream);
+    void RenderSettingsRequestHandler(const json::Node &node);
+};

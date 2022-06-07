@@ -8,6 +8,16 @@
  * Визуализация маршрутов вам понадобится во второй части итогового проекта.
  * Пока можете оставить файл пустым.
  */
+void renderer::MapRenderer::SetSettings(const MapRenderSettings &settings)
+{
+    this->settings = settings;
+}
+
+const renderer::MapRenderSettings &renderer::MapRenderer::GetSettings()
+{
+    return settings;
+}
+
 void renderer::MapRenderer::AddStopPoint(const std::string_view title, const svg::Point &position)
 {
     using svg::Text;
@@ -15,26 +25,26 @@ void renderer::MapRenderer::AddStopPoint(const std::string_view title, const svg
 
     auto point = Circle()
             .SetCenter(position)
-            .SetRadius(stop_radius)
+            .SetRadius(settings.stop_radius)
             .SetFillColor("white");
 
     auto text = Text()
             .SetData(std::string(title))
             .SetPosition(position)
-            .SetOffset(stop_label_offset)
-            .SetFontSize(stop_label_font_size)
+            .SetOffset(settings.stop_label_offset)
+            .SetFontSize(settings.stop_label_font_size)
             .SetFontFamily("Verdana")
             .SetFillColor("black");
     auto text_bottom = Text(text)
             .SetData(std::string(title))
             .SetPosition(position)
-            .SetOffset(stop_label_offset)
-            .SetFontSize(stop_label_font_size)
+            .SetOffset(settings.stop_label_offset)
+            .SetFontSize(settings.stop_label_font_size)
             .SetFontFamily("Verdana")
-            .SetFontSize(stop_label_font_size)
-            .SetStrokeColor(underlayer_color)
-            .SetStrokeWidth(underlayer_width)
-            .SetFillColor(underlayer_color)
+            .SetFontSize(settings.stop_label_font_size)
+            .SetStrokeColor(settings.underlayer_color)
+            .SetStrokeWidth(settings.underlayer_width)
+            .SetFillColor(settings.underlayer_color)
             .SetStrokeLineCap(svg::StrokeLineCap::ROUND)
             .SetStrokeLineJoin(svg::StrokeLineJoin::ROUND);
 
@@ -51,26 +61,26 @@ void renderer::MapRenderer::AddBusLine(const std::string_view title, std::vector
     using svg::Color;
     using svg::Polyline;
 
-    Color color = color_palette.at((color_index++) % color_palette.size());
+    Color color = settings.color_palette.at((color_index++) % settings.color_palette.size());
     auto text = Text()
             .SetData(std::string(title))
             .SetFillColor(color)
             .SetPosition(points.front())
-            .SetOffset(bus_label_offset)
-            .SetFontSize(bus_label_font_size)
+            .SetOffset(settings.bus_label_offset)
+            .SetFontSize(settings.bus_label_font_size)
             .SetFontFamily("Verdana")
             .SetFontWeight("bold");
     auto text_bottom = Text()
             .SetData(std::string(title))
-            .SetFillColor(underlayer_color)
+            .SetFillColor(settings.underlayer_color)
             .SetPosition(points.front())
-            .SetStrokeColor(underlayer_color)
-            .SetStrokeWidth(underlayer_width)
+            .SetStrokeColor(settings.underlayer_color)
+            .SetStrokeWidth(settings.underlayer_width)
             .SetStrokeLineCap(svg::StrokeLineCap::ROUND)
             .SetStrokeLineJoin(svg::StrokeLineJoin::ROUND)
             .SetPosition(points.front())
-            .SetOffset(bus_label_offset)
-            .SetFontSize(bus_label_font_size)
+            .SetOffset(settings.bus_label_offset)
+            .SetFontSize(settings.bus_label_font_size)
             .SetFontFamily("Verdana")
             .SetFontWeight("bold");
 
@@ -90,7 +100,7 @@ void renderer::MapRenderer::AddBusLine(const std::string_view title, std::vector
     }
 
     auto line = Polyline()
-            .SetStrokeWidth(line_width)
+            .SetStrokeWidth(settings.line_width)
             .SetStrokeColor(color)
             .SetFillColor("none")
             .SetStrokeLineCap(svg::StrokeLineCap::ROUND)

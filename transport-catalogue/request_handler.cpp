@@ -32,6 +32,11 @@ const std::optional<StopStat> RequestHandler::GetStopStat(const std::string_view
     return catalogue_.GetStopInfo(stop_name);
 }
 
+void RequestHandler::SetRendererSettings(const renderer::MapRenderSettings &settings)
+{
+    renderer_.SetSettings(settings);
+}
+
 void RequestHandler::RenderMap(std::ostream &stream) const
 {
     using namespace svg;
@@ -58,11 +63,12 @@ void RequestHandler::RenderMap(std::ostream &stream) const
         stops_to_coordinates[stop] = &stops_coordinates.back();
     });
 
+    const auto &render_settinds = renderer_.GetSettings();
     SphereProjector projector(stops_coordinates.begin(),
                               stops_coordinates.end(),
-                              renderer_.width,
-                              renderer_.height,
-                              renderer_.padding);
+                              render_settinds.width,
+                              render_settinds.height,
+                              render_settinds.padding);
 
 
     Document svg;

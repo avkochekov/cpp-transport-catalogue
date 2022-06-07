@@ -41,7 +41,7 @@ json::Builder &json::Builder::Value(Node::Value value)
     return *this;
 }
 
-json::DictItemContext &json::Builder::StartDict()
+json::Builder::DictItemContext &json::Builder::StartDict()
 {
     if (nodes_stack_.empty())
         throw std::logic_error("start dict failed - invalid node");
@@ -59,7 +59,7 @@ json::DictItemContext &json::Builder::StartDict()
     return context;
 }
 
-json::ArrayItemContext &json::Builder::StartArray()
+json::Builder::ArrayItemContext &json::Builder::StartArray()
 {
     if (nodes_stack_.empty())
         throw std::logic_error("start array failed - invalid node");
@@ -109,64 +109,64 @@ json::Node json::Builder::Build()
     return root_node_;
 }
 
-json::DictItemContext::DictItemContext(Builder &b) : builder{b} {
+json::Builder::DictItemContext::DictItemContext(Builder &b) : builder{b} {
 }
 
-json::DictValueContext &json::DictItemContext::Key(const std::string &key)
+json::Builder::DictValueContext &json::Builder::DictItemContext::Key(const std::string &key)
 {
     builder.Key(key);
     static DictValueContext context = DictValueContext(builder);
     return context;
 }
 
-json::Builder &json::DictItemContext::EndDict()
+json::Builder &json::Builder::DictItemContext::EndDict()
 {
     return builder.EndDict();
 }
 
-json::ArrayItemContext::ArrayItemContext(Builder &b) : builder{b} {
+json::Builder::ArrayItemContext::ArrayItemContext(Builder &b) : builder{b} {
 }
 
-json::ArrayItemContext &json::ArrayItemContext::Value(Node::Value value)
+json::Builder::ArrayItemContext &json::Builder::ArrayItemContext::Value(Node::Value value)
 {
     builder.Value(value);
     static ArrayItemContext context = ArrayItemContext(builder);
     return context;
 }
 
-json::DictItemContext &json::ArrayItemContext::StartDict()
+json::Builder::DictItemContext &json::Builder::ArrayItemContext::StartDict()
 {
     return builder.StartDict();
 }
 
-json::ArrayItemContext &json::ArrayItemContext::StartArray()
+json::Builder::ArrayItemContext &json::Builder::ArrayItemContext::StartArray()
 {
     return builder.StartArray();
 }
 
-json::Builder &json::ArrayItemContext::EndArray()
+json::Builder &json::Builder::ArrayItemContext::EndArray()
 {
     return builder.EndArray();
 }
 
-json::DictValueContext::DictValueContext(Builder &b) : builder{b} {
+json::Builder::DictValueContext::DictValueContext(Builder &b) : builder{b} {
 }
 
-json::DictItemContext &json::DictValueContext::Value(Node::Value value)
+json::Builder::DictItemContext &json::Builder::DictValueContext::Value(Node::Value value)
 {
     builder.Value(value);
     static DictItemContext context = DictItemContext(builder);
     return context;
 }
 
-json::DictItemContext &json::DictValueContext::StartDict()
+json::Builder::DictItemContext &json::Builder::DictValueContext::StartDict()
 {
     builder.StartDict();
     static DictItemContext context = DictItemContext(builder);
     return context;
 }
 
-json::ArrayItemContext &json::DictValueContext::StartArray()
+json::Builder::ArrayItemContext &json::Builder::DictValueContext::StartArray()
 {
     builder.StartArray();
     static ArrayItemContext context = ArrayItemContext(builder);

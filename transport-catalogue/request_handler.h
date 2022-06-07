@@ -22,6 +22,7 @@
 
 using catalogue::TransportCatalogue;
 using renderer::MapRenderer;
+using renderer::MapRenderSettings;
 
 class RequestHandler {
 public:
@@ -39,7 +40,7 @@ public:
     // Возвращает маршруты, проходящие через остановку
     const std::optional<StopStat> GetStopStat(const std::string_view& stop_name) const;
 
-    // Этот метод будет нужен в следующей части итогового проекта
+    void SetRendererSettings(const MapRenderSettings& settings);
     void RenderMap(std::ostream &stream) const;
 
 private:

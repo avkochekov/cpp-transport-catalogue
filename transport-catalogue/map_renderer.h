@@ -11,16 +11,7 @@
  */
 
 namespace renderer {
-    class MapRenderer{
-        svg::Document doc;
-        std::deque<svg::Text> stop_titles;
-        std::deque<svg::Circle> stop_points;
-
-        std::deque<svg::Text> bus_titles;
-        std::deque<svg::Polyline> bus_lines;
-
-    public:
-        size_t color_index = 0;
+    struct MapRenderSettings{
         double width;                           ///< ширина изображения в пикселях. Вещественное число в диапазоне от 0 до 100000.
         double height;                          ///< высота изображения в пикселях. Вещественное число в диапазоне от 0 до 100000.
         double padding;                         ///< отступ краёв карты от границ SVG-документа. Вещественное число не меньше 0 и меньше min(width, height)/2.
@@ -35,7 +26,21 @@ namespace renderer {
                                                 ///< Массив из двух элементов типа double. Задаёт значения свойств dx и dy SVG-элемента <text>. Числа в диапазоне от –100000 до 100000.
         svg::Color underlayer_color;            ///< цвет подложки под названиями остановок и маршрутов. Формат хранения цвета будет ниже.
         std::vector<svg::Color> color_palette;  ///< цветовая палитра. Непустой массив.
+    };
 
+    class MapRenderer{
+        svg::Document doc;
+        std::deque<svg::Text> stop_titles;
+        std::deque<svg::Circle> stop_points;
+
+        std::deque<svg::Text> bus_titles;
+        std::deque<svg::Polyline> bus_lines;
+
+        size_t color_index = 0;
+        MapRenderSettings settings;
+    public:
+        void SetSettings(const MapRenderSettings &settings);
+        const MapRenderSettings &GetSettings();
 
         void AddStopPoint(const std::string_view title, const svg::Point &position);
         void AddBusLine(const std::string_view title, std::vector<svg::Point> points, bool isLinear);
