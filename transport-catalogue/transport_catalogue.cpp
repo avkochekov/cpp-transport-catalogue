@@ -32,7 +32,7 @@ void TransportCatalogue::AddDistance(const std::string_view from, const std::str
 
 std::optional<TransportCatalogue::Stop> TransportCatalogue::FindStop(const std::string_view name) const
 {
-    if (stopname_to_stop.count(name)){
+    if (stopname_to_stop.count(name)) {
         return *stopname_to_stop.at(name);
     }
     return std::nullopt;
@@ -40,7 +40,7 @@ std::optional<TransportCatalogue::Stop> TransportCatalogue::FindStop(const std::
 
 std::optional<TransportCatalogue::Bus> TransportCatalogue::FindBus(const std::string_view name) const
 {
-    if (busname_to_bus.count(name)){
+    if (busname_to_bus.count(name)) {
         return *busname_to_bus.at(name);
     }
     return std::nullopt;
@@ -78,12 +78,12 @@ std::optional<BusStat> TransportCatalogue::GetBusInfo(const std::string_view nam
         double geo_length = 0;
         auto l_iter = bus->stops.begin();
         auto r_iter = std::next(l_iter);
-        while (r_iter != bus->stops.end()){
+        while (r_iter != bus->stops.end()) {
             geo_length += geo::ComputeDistance({(*l_iter)->coordinates.lat, (*l_iter)->coordinates.lng},
                                                {(*r_iter)->coordinates.lat, (*r_iter)->coordinates.lng});
-            if (stops_to_distance.count({(*l_iter), (*r_iter)})){
+            if (stops_to_distance.count({(*l_iter), (*r_iter)})) {
                 route_length += stops_to_distance.at({(*l_iter), (*r_iter)});
-            } else if (stops_to_distance.count({(*r_iter), (*l_iter)})){
+            } else if (stops_to_distance.count({(*r_iter), (*l_iter)})) {
                 route_length += stops_to_distance.at({(*r_iter), (*l_iter)});
             } else {
                 route_length += geo_length;
@@ -105,10 +105,10 @@ std::optional<BusStat> TransportCatalogue::GetBusInfo(const std::string_view nam
 
             auto l_iter = bus->stops.rbegin();
             auto r_iter = std::next(l_iter);
-            while (r_iter != bus->stops.rend()){
-                if (stops_to_distance.count({(*l_iter), (*r_iter)})){
+            while (r_iter != bus->stops.rend()) {
+                if (stops_to_distance.count({(*l_iter), (*r_iter)})) {
                     route_length += stops_to_distance.at({(*l_iter), (*r_iter)});
-                } else if (stops_to_distance.count({(*r_iter), (*l_iter)})){
+                } else if (stops_to_distance.count({(*r_iter), (*l_iter)})) {
                     route_length += stops_to_distance.at({(*r_iter), (*l_iter)});
                 } else {
                     route_length += geo_length;
@@ -173,7 +173,7 @@ std::vector<std::string> TransportCatalogue::GetBuses() const
 
 std::optional<std::vector<std::string>> TransportCatalogue::GetBusStops(const std::string_view name) const
 {
-    if (busname_to_bus.count(name)){
+    if (busname_to_bus.count(name)) {
         const auto &stops = busname_to_bus.at(name)->stops;
         std::vector<std::string> res(stops.size());
         std::transform(stops.begin(), stops.end(),

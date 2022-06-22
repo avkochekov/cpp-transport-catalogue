@@ -9,13 +9,13 @@ static constexpr double SPEED_TRANSFORM_KOEFFICIENT = 1000.0 / 60.0;
 
 TransportRouter &TransportRouter::SetBusWaitTime(int value)
 {
-    bus_wait_time_ = value;
+    bus_params_.wait_time = value;
     return *this;
 }
 
 TransportRouter &TransportRouter::SetBusVelocity(int value)
 {
-    bus_velocity_ = value;
+    bus_params_.velocity = value;
     return *this;
 }
 
@@ -56,14 +56,14 @@ void TransportRouter::RouteCatalog(catalogue::TransportCatalogue &catalogue)
                 auto left_stop_index = bus_stops_indexes[left_index];
                 auto right_stop_index = bus_stops_indexes[right_index];
 
-                const double koeff = 1 / (bus_velocity_ * SPEED_TRANSFORM_KOEFFICIENT);
+                const double koeff = 1 / (bus_params_.velocity * SPEED_TRANSFORM_KOEFFICIENT);
 
                 forward_time += catalogue.GetDistanceBetweenStops(prev_stop, bus_stops.at(right_index)->name) * koeff;
                 backward_time += catalogue.GetDistanceBetweenStops(bus_stops.at(right_index)->name, prev_stop) * koeff;
 
                 auto forward_route = graph_.AddEdge({left_stop_index,
                                                      right_stop_index,
-                                                     forward_time + bus_wait_time_});
+                                                     forward_time + bus_params_.wait_time});
                 route_info_[forward_route] = {
                     stops_.at(left_stop_index),
                     stops_.at(right_stop_index),
@@ -74,7 +74,7 @@ void TransportRouter::RouteCatalog(catalogue::TransportCatalogue &catalogue)
                 if (bus_info->type == Linear){
                     auto backward_route = graph_.AddEdge({right_stop_index,
                                                           left_stop_index,
-                                                          backward_time + bus_wait_time_});
+                                                          backward_time + bus_params_.wait_time});
                     route_info_[backward_route] = {
                         stops_.at(right_stop_index),
                         stops_.at(left_stop_index),
@@ -116,7 +116,7 @@ std::optional<RouteInfo> TransportRouter::MakeRoute(const std::string &from_stop
 
         route_info.stops.push_back(
                     router::RouteInfo::StopInfo{edge_info.from_stop,
-                                                bus_wait_time_});
+                                                bus_params_.wait_time});
 
     }
     return route_info;

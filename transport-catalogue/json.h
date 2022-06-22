@@ -124,7 +124,7 @@ public:
         return GetValue() == rhs.GetValue();
     }
 
-    Value& GetValue(){
+    Value& GetValue() {
         return *this;
     }
 

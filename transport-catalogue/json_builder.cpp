@@ -13,7 +13,7 @@ json::Builder &json::Builder::Key(const std::string& key)
         throw std::logic_error("key insertion failed - invalid node");
 
     Node *node = nodes_stack_.back();
-    if (node->IsDict()){
+    if (node->IsDict()) {
         node->AsDict()[key] = Node();
         nodes_stack_.push_back(&node->AsDict().at(key));
     } else {
@@ -28,10 +28,10 @@ json::Builder &json::Builder::Value(Node::Value value)
         throw std::logic_error("value insertion failed - invalid node");
 
     Node *node = nodes_stack_.back();
-    if (node->IsNull()){
+    if (node->IsNull()) {
         node->GetValue() = value;
         nodes_stack_.pop_back();
-    } else if (node->IsArray()){
+    } else if (node->IsArray()) {
         Node n;
         n.GetValue() = value;
         node->AsArray().emplace_back(std::move(n));

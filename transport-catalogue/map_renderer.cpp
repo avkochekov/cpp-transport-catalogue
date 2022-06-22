@@ -2,6 +2,7 @@
 
 #include <cassert>
 #include <execution>
+#include <unordered_set>
 
 /*
  * В этом файле вы можете разместить код, отвечающий за визуализацию карты маршрутов в формате SVG.
@@ -16,6 +17,69 @@ void renderer::MapRenderer::SetSettings(const MapRenderSettings &settings)
 const renderer::MapRenderSettings &renderer::MapRenderer::GetSettings()
 {
     return settings;
+}
+
+void renderer::MapRenderer::RenderCatalogue(const catalogue::TransportCatalogue &catalogue, std::ostream& out = std::cout)
+{
+    using namespace svg;
+    using svg::Circle;
+
+    std::unordered_set<std::string> unique_stops;
+    std::vector<std::string> buses = catalogue.GetBuses();
+    std::unordered_map<std::string, std::vector<std::string>> buses_to_stops;
+    for (const auto &bus : buses){
+        auto bus_stops = *catalogue.GetBusStops(bus);
+        unique_stops.merge(std::unordered_set<std::string>(bus_stops.begin(), bus_stops.end()));
+        buses_to_stops[bus] = *catalogue.GetBusStops(bus);
+    }
+    std::sort(buses.begin(), buses.end());
+    std::vector<std::string> stops(unique_stops.begin(), unique_stops.end());
+    std::sort(stops.begin(), stops.end());
+
+    std::deque<Coordinates> stops_coordinates;
+    std::unordered_map<std::string_view, Coordinates*> stops_to_coordinates;
+    std::for_each(unique_stops.begin(), unique_stops.end(),
+                  [&stops_coordinates, &stops_to_coordinates, &catalogue](const std::string_view stop)
+    {
+        stops_coordinates.push_back(*catalogue.GetStopCoordinates(stop));
+        stops_to_coordinates[stop] = &stops_coordinates.back();
+    });
+
+    const auto &render_settinds = GetSettings();
+    SphereProjector projector(stops_coordinates.begin(),
+                              stops_coordinates.end(),
+                              render_settinds.width,
+                              render_settinds.height,
+                              render_settinds.padding);
+
+
+    std::unordered_map<std::string, Point> stops_to_points;
+    for (const auto &stop : unique_stops){
+        stops_to_points[stop] = projector(*stops_to_coordinates.at(stop));
+    }
+
+    std::deque<Polyline> lines;
+    std::deque<Text> buses_names;
+
+    for (const auto &bus : buses){
+        if (buses_to_stops.at(bus).empty())
+            continue;
+
+        auto stops = std::move(buses_to_stops.at(bus));
+
+        std::vector<Point> stops_points(stops.size());
+        std::transform(std::execution::par,
+                       stops.begin(), stops.end(),
+                       stops_points.begin(),
+                       [&stops_to_points](auto &stop_name){ return stops_to_points[stop_name]; });
+
+        AddBusLine(bus, stops_points, catalogue.GetBusType(bus) == Linear);
+    }
+
+    for (const auto &stop : stops){
+        AddStopPoint(stop, stops_to_points.at(stop));
+    }
+    Render(out);
 }
 
 void renderer::MapRenderer::AddStopPoint(const std::string_view title, const svg::Point &position)
@@ -114,7 +178,11 @@ void renderer::MapRenderer::AddBusLine(const std::string_view title, std::vector
 
 void renderer::MapRenderer::Render(std::ostream &stream)
 {
-    using namespace svg;
+    using svg::Polyline;
+    using svg::Text;
+    using svg::Circle;
+    using svg::Text;
+
     for (Polyline &line : bus_lines){
         doc.Add(std::move(line));
     }

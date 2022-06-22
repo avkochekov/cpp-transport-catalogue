@@ -3,7 +3,7 @@
 
 #include <sstream>
 
-static std::stringstream Query1(){
+static std::stringstream Query1() {
     std::stringstream stream;
     stream << "{\n";
     stream << "    \"base_requests\": [\n";
@@ -135,7 +135,7 @@ static std::stringstream Query1(){
     return stream;
 }
 
-static std::stringstream Query2(){
+static std::stringstream Query2() {
     std::stringstream stream;
     stream << "{\n";
     stream << "  \"base_requests\": [\n";
@@ -394,7 +394,7 @@ static std::stringstream Query2(){
     return stream;
 }
 
-static std::stringstream Query3(){
+static std::stringstream Query3() {
     std::stringstream stream;
     stream << "{\n";
     stream << " \"base_requests\": [\n";

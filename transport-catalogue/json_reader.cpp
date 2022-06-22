@@ -28,9 +28,9 @@ void JsonReader::ParseRequest(std::istream &input, std::ostream &output)
 
 svg::Color RenderColor(const json::Node &node)
 {
-    if (node.IsString()){
+    if (node.IsString()) {
         return node.AsString();
-    } else if (node.IsArray()){
+    } else if (node.IsArray()) {
         const auto &color_array = node.AsArray();
         if (color_array.size() == 3){
             return svg::Rgb(color_array[0].AsInt(), color_array[1].AsInt(), color_array[2].AsInt());
@@ -50,11 +50,11 @@ void JsonReader::BaseRequestHandler(const json::Node &node)
     std::deque<Node> bus_nodes;
     std::deque<Node> stop_nodes;
 
-    for (const Node &node : node.AsArray()){
+    for (const Node &node : node.AsArray()) {
         auto &dict = node.AsDict();
-        if (dict.at("type").AsString() == "Bus"){
+        if (dict.at("type").AsString() == "Bus") {
             bus_nodes.push_back(dict);
-        } else if (dict.at("type").AsString() == "Stop"){
+        } else if (dict.at("type").AsString() == "Stop") {
             stop_nodes.push_back(dict);
         } else {
             throw std::invalid_argument("JsonReader: invalid request type");
@@ -71,7 +71,7 @@ void JsonReader::BaseRequestHandler(const json::Node &node)
     for (const Node &stop_node : stop_nodes){
         const auto &stop = stop_node.AsDict();
         const auto &from_stop = stop.at("name").AsString();
-        for (const auto &[to_stop, distance_node] : stop.at("road_distances").AsDict()){
+        for (const auto &[to_stop, distance_node] : stop.at("road_distances").AsDict()) {
             handler.AddDistanceBetweenStops(from_stop, to_stop, distance_node.AsDouble());
         }
     }
@@ -105,13 +105,13 @@ void JsonReader::StatRequestHandler(const json::Node &node, std::ostream &stream
         auto &dict = node.AsDict();
 
         const std::string type = dict.at("type").AsString();
-        if (type == "Bus"){
+        if (type == "Bus") {
             builder.Value(StatRequestBus(dict).AsDict());
-        } else if (type == "Stop"){
+        } else if (type == "Stop") {
             builder.Value(StatRequestStop(dict).AsDict());
-        } else if (type == "Map"){
+        } else if (type == "Map") {
             builder.Value(StatRequestMap(dict).AsDict());
-        } else if (type == "Route"){
+        } else if (type == "Route") {
             builder.Value(StatRequestRoute(dict).AsDict());
         } else {
             throw std::invalid_argument("JsonReader: invalid request type");

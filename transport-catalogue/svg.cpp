@@ -118,7 +118,7 @@ Text &Text::SetData(std::string data)
     size_t iter = data.size();
     while (iter > 0){
         --iter;
-        if (text_replace_symbols.count(data[iter])){
+        if (text_replace_symbols.count(data[iter])) {
             char tmp = data[iter];
             data.erase(iter, 1);
             data.insert(iter, text_replace_symbols.at(tmp));

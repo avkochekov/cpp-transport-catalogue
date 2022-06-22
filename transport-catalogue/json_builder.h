@@ -62,9 +62,9 @@ public:
 template<typename Container>
 inline Builder &Builder::StartContainer(Node *node, Container &&container)
 {
-    if (node->IsNull()){
+    if (node->IsNull()) {
         *node = std::move(container);
-    } else if (node->IsArray()){
+    } else if (node->IsArray()) {
         node->AsArray().emplace_back(std::move(container));
         nodes_stack_.push_back(&node->AsArray().back());
     } else {

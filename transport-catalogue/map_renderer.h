@@ -2,7 +2,9 @@
 
 #include <vector>
 #include <deque>
+
 #include "svg.h"
+#include "transport_catalogue.h"
 
 /*
  * В этом файле вы можете разместить код, отвечающий за визуализацию карты маршрутов в формате SVG.
@@ -41,6 +43,8 @@ namespace renderer {
     public:
         void SetSettings(const MapRenderSettings &settings);
         const MapRenderSettings &GetSettings();
+
+        void RenderCatalogue(const catalogue::TransportCatalogue& catalogue, std::ostream &out);
 
         void AddStopPoint(const std::string_view title, const svg::Point &position);
         void AddBusLine(const std::string_view title, std::vector<svg::Point> points, bool isLinear);

@@ -39,8 +39,10 @@ public:
     std::optional<RouteInfo> MakeRoute(const std::string& from_stop, const std::string& to_stop);
 
 private:
-    double bus_wait_time_ = 0;
-    double bus_velocity_ = 0;
+    struct {
+        double wait_time = 0;
+        double velocity = 0;
+    } bus_params_;
 
     graph::DirectedWeightedGraph<double> graph_;
     std::unique_ptr<graph::Router<double>> graph_router_;
