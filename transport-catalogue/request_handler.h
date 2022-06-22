@@ -4,6 +4,7 @@
 
 #include "map_renderer.h"
 #include "transport_catalogue.h"
+#include "transport_router.h"
 
 /*
  * Здесь можно было бы разместить код обработчика запросов к базе, содержащего логику, которую не
@@ -23,11 +24,12 @@
 using catalogue::TransportCatalogue;
 using renderer::MapRenderer;
 using renderer::MapRenderSettings;
+using router::TransportRouter;
+using router::RouteInfo;
 
 class RequestHandler {
 public:
-    // MapRenderer понадобится в следующей части итогового проекта
-    RequestHandler(catalogue::TransportCatalogue &db, renderer::MapRenderer &renderer);
+    RequestHandler(catalogue::TransportCatalogue& db, renderer::MapRenderer& renderer, router::TransportRouter& router);
 
     void AddStop(const std::string& name, const double lat, const double lon);
     void AddDistanceBetweenStops(const std::string& from, const std::string& to, const double distance);
@@ -43,10 +45,13 @@ public:
     void SetRendererSettings(const MapRenderSettings& settings);
     void RenderMap(std::ostream &stream) const;
 
+    void SetRouterSettings(const int bus_wait_time, const int bus_velocity);
+    std::optional<RouteInfo> MakeRoute(const std::string& from_stop, const std::string &to_stop) const;
+
 private:
-    // RequestHandler использует агрегацию объектов "Транспортный Справочник" и "Визуализатор Карты"
-    catalogue::TransportCatalogue& catalogue_;
-    renderer::MapRenderer& renderer_;
+    TransportCatalogue& catalogue_;
+    MapRenderer& renderer_;
+    TransportRouter& router_;
 };
 
 template<typename Container>

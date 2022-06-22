@@ -40,7 +40,7 @@ struct BusStat{
     size_t unique_stops;
     double route_length;
     double curvature;
-    std::vector<std::string_view> stops;
+    std::vector<std::string> stops;
 };
 
 inline const double EPSILON = 1e-6;

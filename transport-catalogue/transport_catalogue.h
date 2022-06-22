@@ -49,6 +49,7 @@ namespace catalogue {
         std::optional<StopStat> GetStopInfo(const std::string_view stop_name) const;
         std::optional<BusStat> GetBusInfo(const std::string_view bus_name) const;
         RouteType GetBusType(const std::string_view bus_name) const;
+        double GetDistanceBetweenStops(const std::string_view from_stop, const std::string_view to_stop) const;
 
         std::vector<std::string> GetStops() const;
         std::optional<Coordinates> GetStopCoordinates(const std::string_view stop_name) const;

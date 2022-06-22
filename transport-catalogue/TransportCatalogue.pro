@@ -6,6 +6,7 @@ CONFIG -= qt
 unix: LIBS += -ltbb -lpthread
 
 SOURCES += \
+        transport_router.cpp \
         transport_catalogue.cpp \
 	domain.cpp \
 	geo.cpp \
@@ -18,6 +19,8 @@ SOURCES += \
 	svg.cpp
 
 HEADERS += \
+    test_queries.h \
+        transport_router.h \
         transport_catalogue.h \
 	domain.h \
 	geo.h \
@@ -26,4 +29,7 @@ HEADERS += \
         json_builder.h \
 	map_renderer.h \
 	request_handler.h \
-	svg.h
+        svg.h \
+        ranges.h \
+        router.h \
+        graph.h

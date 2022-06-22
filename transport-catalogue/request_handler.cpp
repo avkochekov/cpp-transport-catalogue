@@ -7,9 +7,10 @@
  * Если вы затрудняетесь выбрать, что можно было бы поместить в этот файл,
  * можете оставить его пустым.
  */
-RequestHandler::RequestHandler(catalogue::TransportCatalogue &db, renderer::MapRenderer &renderer)
+RequestHandler::RequestHandler(catalogue::TransportCatalogue &db, renderer::MapRenderer &renderer, router::TransportRouter &router)
     : catalogue_{db}
-    , renderer_{renderer} {
+    , renderer_{renderer}
+    , router_{router} {
 }
 
 void RequestHandler::AddStop(const std::string &name, const double lat, const double lon)
@@ -99,4 +100,15 @@ void RequestHandler::RenderMap(std::ostream &stream) const
         renderer_.AddStopPoint(stop, stops_to_points.at(stop));
     }
     renderer_.Render(stream);
+}
+
+void RequestHandler::SetRouterSettings(const int bus_wait_time, const int bus_velocity)
+{
+    router_.SetBusWaitTime(bus_wait_time).SetBusVelocity(bus_velocity);
+    router_.RouteCatalog(catalogue_);
+}
+
+std::optional<RouteInfo> RequestHandler::MakeRoute(const std::string &from_stop, const std::string &to_stop) const
+{
+    return router_.MakeRoute(from_stop, to_stop);
 }

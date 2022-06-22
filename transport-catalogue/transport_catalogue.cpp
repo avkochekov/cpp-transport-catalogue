@@ -120,7 +120,7 @@ std::optional<BusStat> TransportCatalogue::GetBusInfo(const std::string_view nam
         }
 
         const auto &bus_stops_ptr = busname_to_bus.at(name)->stops;
-        std::vector<std::string_view> bus_stops(bus_stops_ptr.size());
+        std::vector<std::string> bus_stops(bus_stops_ptr.size());
         std::transform(bus_stops_ptr.begin(), bus_stops_ptr.end(),
                        bus_stops.begin(),
                        [](const Stop* value){ return value->name; });
@@ -132,6 +132,18 @@ std::optional<BusStat> TransportCatalogue::GetBusInfo(const std::string_view nam
 RouteType TransportCatalogue::GetBusType(const std::string_view name) const
 {
     return busname_to_bus.at(name)->type;
+}
+
+double TransportCatalogue::GetDistanceBetweenStops(const std::string_view from_stop, const std::string_view to_stop) const
+{
+    const auto from_stop_ptr = stopname_to_stop.at(from_stop);
+    const auto to_stop_ptr = stopname_to_stop.at(to_stop);
+    if (stops_to_distance.count({from_stop_ptr, to_stop_ptr}))
+        return stops_to_distance.at({from_stop_ptr, to_stop_ptr});
+    else if (stops_to_distance.count({to_stop_ptr, from_stop_ptr}))
+        return stops_to_distance.at({to_stop_ptr, from_stop_ptr});
+    else
+        return geo::ComputeDistance(from_stop_ptr->coordinates, to_stop_ptr->coordinates);
 }
 
 std::vector<std::string> TransportCatalogue::GetStops() const

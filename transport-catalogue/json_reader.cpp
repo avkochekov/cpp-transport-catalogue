@@ -21,6 +21,7 @@ void JsonReader::ParseRequest(std::istream &input, std::ostream &output)
 
     BaseRequestHandler(requests.at("base_requests"));
     RenderSettingsRequestHandler(requests.at("render_settings"));
+    RoutingSettingsHandler(requests.at("routing_settings"));
     StatRequestHandler(requests.at("stat_requests"), output);
 }
 
@@ -103,12 +104,15 @@ void JsonReader::StatRequestHandler(const json::Node &node, std::ostream &stream
     for (const Node &node : nodes){
         auto &dict = node.AsDict();
 
-        if (dict.at("type").AsString() == "Bus"){
+        const std::string type = dict.at("type").AsString();
+        if (type == "Bus"){
             builder.Value(StatRequestBus(dict).AsDict());
-        } else if (dict.at("type").AsString() == "Stop"){
+        } else if (type == "Stop"){
             builder.Value(StatRequestStop(dict).AsDict());
-        } else if (dict.at("type").AsString() == "Map"){
+        } else if (type == "Map"){
             builder.Value(StatRequestMap(dict).AsDict());
+        } else if (type == "Route"){
+            builder.Value(StatRequestRoute(dict).AsDict());
         } else {
             throw std::invalid_argument("JsonReader: invalid request type");
         }
@@ -147,6 +151,15 @@ void JsonReader::RenderSettingsRequestHandler(const json::Node &node)
     handler.SetRendererSettings(settings);
 }
 
+void JsonReader::RoutingSettingsHandler(const json::Node &node)
+{
+    const auto &nodes = node.AsDict();
+    double bus_wait_time = nodes.at("bus_wait_time").AsInt();
+    double bus_velocity = nodes.at("bus_velocity").AsInt();
+
+    handler.SetRouterSettings(bus_wait_time, bus_velocity);
+}
+
 Node JsonReader::StatRequestBus(const json::Dict &dict)
 {
     using namespace json;
@@ -154,6 +167,7 @@ Node JsonReader::StatRequestBus(const json::Dict &dict)
     Builder builder;
     builder.StartDict();
     builder.Key("request_id").Value(dict.at("id").AsInt());
+
     const auto &info = handler.GetBusStat(dict.at("name").AsString());
     if (info == std::nullopt){
         builder.Key("error_message").Value("not found");
@@ -163,6 +177,7 @@ Node JsonReader::StatRequestBus(const json::Dict &dict)
         builder.Key("stop_count").Value(static_cast<int>(info->stops_on_route));
         builder.Key("unique_stop_count").Value(static_cast<int>(info->unique_stops));
     }
+
     builder.EndDict();
     return builder.Build();
 }
@@ -174,6 +189,7 @@ Node JsonReader::StatRequestStop(const json::Dict &dict)
     Builder builder;
     builder.StartDict();
     builder.Key("request_id").Value(dict.at("id").AsInt());
+
     const auto &info = handler.GetStopStat(dict.at("name").AsString());
     if (info == std::nullopt){
         builder.Key("error_message").Value("not found");
@@ -185,6 +201,7 @@ Node JsonReader::StatRequestStop(const json::Dict &dict)
                        [](const auto &value){ return Node{value}; });
         builder.Key("buses").Value(buses_array);
     }
+
     builder.EndDict();
     return builder.Build();
 }
@@ -196,9 +213,50 @@ Node JsonReader::StatRequestMap(const json::Dict &dict)
     Builder builder;
     builder.StartDict();
     builder.Key("request_id").Value(dict.at("id").AsInt());
+
     std::ostringstream ostream;
     handler.RenderMap(ostream);
     builder.Key("map").Value(ostream.str());
+
+    builder.EndDict();
+    return builder.Build();
+}
+
+Node JsonReader::StatRequestRoute(const json::Dict &dict)
+{
+    using namespace json;
+
+    Builder builder;
+    builder.StartDict();
+    builder.Key("request_id").Value(dict.at("id").AsInt());
+
+    const std::string& from_stop = dict.at("from").AsString();
+    const std::string& to_stop = dict.at("to").AsString();
+
+    const auto &info = handler.MakeRoute(from_stop, to_stop);
+    if (info == std::nullopt){
+        builder.Key("error_message").Value("not found");
+    } else{
+        Array array;
+        for(const RouteInfo::BusInfo& info: info->buses){
+            Dict dict;
+            dict["bus"]         = std::string(info.name),
+            dict["span_count"]  = static_cast<int>(info.span_count),
+            dict["time"]        = info.time,
+            dict["type"]        = "Bus";
+            array.push_back(std::move(dict));
+        }
+        for(const RouteInfo::StopInfo& info: info->stops){
+            Dict dict;
+            dict["stop_name"]   = std::string(info.name);
+            dict["time"]        = info.time;
+            dict["type"]        = "Wait";
+            array.push_back(std::move(dict));
+        }
+        builder.Key("items").Value(std::move(array));
+        builder.Key("total_time").Value(info->total_time);
+    }
+
     builder.EndDict();
     return builder.Build();
 }
