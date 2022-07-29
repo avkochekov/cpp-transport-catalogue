@@ -1,7 +1,6 @@
 #include "map_renderer.h"
 
 #include <cassert>
-#include <execution>
 #include <unordered_set>
 
 /*
@@ -68,8 +67,7 @@ void renderer::MapRenderer::RenderCatalogue(const catalogue::TransportCatalogue 
         auto stops = std::move(buses_to_stops.at(bus));
 
         std::vector<Point> stops_points(stops.size());
-        std::transform(std::execution::par,
-                       stops.begin(), stops.end(),
+        std::transform(stops.begin(), stops.end(),
                        stops_points.begin(),
                        [&stops_to_points](auto &stop_name){ return stops_to_points[stop_name]; });
 
@@ -158,8 +156,7 @@ void renderer::MapRenderer::AddBusLine(const std::string_view title, std::vector
 
     if (isLinear){
         points.resize(points.size() * 2 - 1);
-        std::copy(std::execution::par,
-                  points.begin(), points.begin() + points.size() / 2,
+        std::copy(points.begin(), points.begin() + points.size() / 2,
                   points.rbegin());
     }
 

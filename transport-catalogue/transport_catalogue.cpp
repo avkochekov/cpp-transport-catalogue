@@ -1,7 +1,6 @@
 #include "transport_catalogue.h"
 #include <algorithm>
 #include <iterator>
-#include <execution>
 #include <cassert>
 #include <optional>
 #include <unordered_set>
@@ -54,8 +53,7 @@ std::optional<StopStat> TransportCatalogue::GetStopInfo(const std::string_view n
     } else {
         auto& buses = stop_to_buses.at(std::string(name));
         std::vector<std::string> res(buses.size());
-        std::transform(std::execution::par,
-                       buses.begin(), buses.end(),
+        std::transform(buses.begin(), buses.end(),
                        res.begin(),
                        [&](const std::string_view var)
         {

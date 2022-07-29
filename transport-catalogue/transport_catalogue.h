@@ -2,7 +2,6 @@
 #pragma once
 
 #include <cassert>
-#include <execution>
 #include <unordered_map>
 #include <list>
 #include <deque>
@@ -80,8 +79,7 @@ namespace catalogue {
         busname_to_bus[buses.back().name] = &buses.back();
         auto stops = &buses.back().stops;
         stops->resize(stops_.size());
-        std::transform(std::execution::par,
-                       stops_.begin(), stops_.end(),
+        std::transform(stops_.begin(), stops_.end(),
                        stops->begin(),
                        [&](const auto stop_name)
         {
