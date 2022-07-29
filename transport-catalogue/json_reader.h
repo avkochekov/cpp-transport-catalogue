@@ -24,10 +24,12 @@ class JsonReader{
 public:
     JsonReader(RequestHandler &handler);
 
-    void ParseRequest(std::istream &input = std::cin, std::ostream &output = std::cout);
+    json::Dict ParseRequest(std::istream &input = std::cin, std::ostream &output = std::cout);
 
     void BaseRequestHandler(const Node &node);
     void StatRequestHandler(const Node &node, std::ostream &stream);
     void RenderSettingsRequestHandler(const Node &node);
     void RoutingSettingsHandler(const Node &node);
+
+    static std::string SerializationSettings(const Node &node);
 };

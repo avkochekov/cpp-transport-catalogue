@@ -12,17 +12,19 @@ JsonReader::JsonReader(RequestHandler &handler)
     : handler{handler} {
 }
 
-void JsonReader::ParseRequest(std::istream &input, std::ostream &output)
+json::Dict JsonReader::ParseRequest(std::istream &input, std::ostream &output)
 {
     using namespace json;
     Document doc = json::Load(input);
     const json::Node &node = doc.GetRoot();
-    const json::Dict &requests = node.AsDict();
 
-    BaseRequestHandler(requests.at("base_requests"));
-    RenderSettingsRequestHandler(requests.at("render_settings"));
-    RoutingSettingsHandler(requests.at("routing_settings"));
-    StatRequestHandler(requests.at("stat_requests"), output);
+    return node.AsDict();
+
+//    const json::Dict &requests = node.AsDict();
+//    BaseRequestHandler(requests.at("base_requests"));
+//    RenderSettingsRequestHandler(requests.at("render_settings"));
+//    RoutingSettingsHandler(requests.at("routing_settings"));
+//    StatRequestHandler(requests.at("stat_requests"), output);
 }
 
 
@@ -87,7 +89,7 @@ void JsonReader::BaseRequestHandler(const json::Node &node)
                        [](const Node &stop_node){ return stop_node.AsString(); });
 
         handler.AddBus(bus.at("name").AsString(),
-                       bus.at("is_roundtrip").AsBool() ? RouteType::Circle : RouteType::Linear,
+                       bus.at("is_roundtrip").AsBool() ? RouteType::Roundtrip : RouteType::Linear,
                        stops);
     }
 }
@@ -259,4 +261,9 @@ Node JsonReader::StatRequestRoute(const json::Dict &dict)
 
     builder.EndDict();
     return builder.Build();
+}
+
+std::string JsonReader::SerializationSettings(const json::Node &node)
+{
+    return node.AsDict().at("file").AsString();
 }

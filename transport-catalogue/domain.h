@@ -23,7 +23,7 @@
 
 enum RouteType{
     Linear,
-    Circle,
+    Roundtrip,
 };
 
 using geo::Coordinates;

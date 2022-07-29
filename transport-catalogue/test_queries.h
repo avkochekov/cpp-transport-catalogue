@@ -517,4 +517,141 @@ static std::stringstream Query3() {
     return stream;
 }
 
+static std::stringstream Query4_make_base() {
+    std::stringstream stream;
+
+    stream << "{\n";
+    stream << "    \"serialization_settings\": {\n";
+    stream << "        \"file\": \"transport_catalogue.db\"\n";
+    stream << "    },\n";
+    stream << "    \"base_requests\": [\n";
+    stream << "        {\n";
+    stream << "            \"is_roundtrip\": true,\n";
+    stream << "            \"name\": \"297\",\n";
+    stream << "            \"stops\": [\n";
+    stream << "                \"Biryulyovo Zapadnoye\",\n";
+    stream << "                \"Biryulyovo Tovarnaya\",\n";
+    stream << "                \"Universam\",\n";
+    stream << "                \"Biryulyovo Zapadnoye\"\n";
+    stream << "            ],\n";
+    stream << "            \"type\": \"Bus\"\n";
+    stream << "        },\n";
+    stream << "        {\n";
+    stream << "            \"is_roundtrip\": false,\n";
+    stream << "            \"name\": \"635\",\n";
+    stream << "            \"stops\": [\n";
+    stream << "                \"Biryulyovo Tovarnaya\",\n";
+    stream << "                \"Universam\",\n";
+    stream << "                \"Prazhskaya\"\n";
+    stream << "            ],\n";
+    stream << "            \"type\": \"Bus\"\n";
+    stream << "        },\n";
+    stream << "        {\n";
+    stream << "            \"latitude\": 55.574371,\n";
+    stream << "            \"longitude\": 37.6517,\n";
+    stream << "            \"name\": \"Biryulyovo Zapadnoye\",\n";
+    stream << "            \"road_distances\": {\n";
+    stream << "                \"Biryulyovo Tovarnaya\": 2600\n";
+    stream << "            },\n";
+    stream << "            \"type\": \"Stop\"\n";
+    stream << "        },\n";
+    stream << "        {\n";
+    stream << "            \"latitude\": 55.587655,\n";
+    stream << "            \"longitude\": 37.645687,\n";
+    stream << "            \"name\": \"Universam\",\n";
+    stream << "            \"road_distances\": {\n";
+    stream << "                \"Biryulyovo Tovarnaya\": 1380,\n";
+    stream << "                \"Biryulyovo Zapadnoye\": 2500,\n";
+    stream << "                \"Prazhskaya\": 4650\n";
+    stream << "            },\n";
+    stream << "            \"type\": \"Stop\"\n";
+    stream << "        },\n";
+    stream << "        {\n";
+    stream << "            \"latitude\": 55.592028,\n";
+    stream << "            \"longitude\": 37.653656,\n";
+    stream << "            \"name\": \"Biryulyovo Tovarnaya\",\n";
+    stream << "            \"road_distances\": {\n";
+    stream << "                \"Universam\": 890\n";
+    stream << "            },\n";
+    stream << "            \"type\": \"Stop\"\n";
+    stream << "        },\n";
+    stream << "        {\n";
+    stream << "            \"latitude\": 55.611717,\n";
+    stream << "            \"longitude\": 37.603938,\n";
+    stream << "            \"name\": \"Prazhskaya\",\n";
+    stream << "            \"road_distances\": {},\n";
+    stream << "            \"type\": \"Stop\"\n";
+    stream << "        }\n";
+    stream << "    ],\n";
+    stream << "    \"render_settings\": {\n";
+    stream << "        \"bus_label_font_size\": 20,\n";
+    stream << "        \"bus_label_offset\": [\n";
+    stream << "            7,\n";
+    stream << "            15\n";
+    stream << "        ],\n";
+    stream << "        \"color_palette\": [\n";
+    stream << "            \"green\",\n";
+    stream << "            [\n";
+    stream << "                255,\n";
+    stream << "                160,\n";
+    stream << "                0\n";
+    stream << "            ],\n";
+    stream << "            \"red\"\n";
+    stream << "        ],\n";
+    stream << "        \"height\": 200,\n";
+    stream << "        \"line_width\": 14,\n";
+    stream << "        \"padding\": 30,\n";
+    stream << "        \"stop_label_font_size\": 20,\n";
+    stream << "        \"stop_label_offset\": [\n";
+    stream << "            7,\n";
+    stream << "            -3\n";
+    stream << "        ],\n";
+    stream << "        \"stop_radius\": 5,\n";
+    stream << "        \"underlayer_color\": [\n";
+    stream << "            255,\n";
+    stream << "            255,\n";
+    stream << "            255,\n";
+    stream << "            0.85\n";
+    stream << "        ],\n";
+    stream << "        \"underlayer_width\": 3,\n";
+    stream << "        \"width\": 200\n";
+    stream << "    },\n";
+    stream << "    \"routing_settings\": {\n";
+    stream << "        \"bus_velocity\": 40,\n";
+    stream << "        \"bus_wait_time\": 6\n";
+    stream << "    }\n";
+    stream << "}\n";
+
+    return stream;
+}
+
+static std::stringstream Query4_process_requests() {
+    std::stringstream stream;
+
+    stream << "{\n";
+    stream << "    \"serialization_settings\": {\n";
+    stream << "        \"file\": \"transport_catalogue.db\"\n";
+    stream << "    },\n";
+    stream << "    \"stat_requests\": [\n";
+    stream << "        {\n";
+    stream << "            \"id\": 1,\n";
+    stream << "            \"name\": \"297\",\n";
+    stream << "            \"type\": \"Bus\"\n";
+    stream << "        },\n";
+    stream << "        {\n";
+    stream << "            \"id\": 2,\n";
+    stream << "            \"name\": \"635\",\n";
+    stream << "            \"type\": \"Bus\"\n";
+    stream << "        },\n";
+    stream << "        {\n";
+    stream << "            \"id\": 3,\n";
+    stream << "            \"name\": \"Universam\",\n";
+    stream << "            \"type\": \"Stop\"\n";
+    stream << "        }\n";
+    stream << "    ]\n";
+    stream << "}\n";
+
+    return stream;
+}
+
 #endif // TEST_QUERIES_H

@@ -48,6 +48,9 @@ public:
     void SetRouterSettings(const int bus_wait_time, const int bus_velocity);
     std::optional<RouteInfo> MakeRoute(const std::string& from_stop, const std::string &to_stop) const;
 
+    void Serialize(const std::string& path);
+    void Deserialize(const std::string& path);
+
 private:
     TransportCatalogue& catalogue_;
     MapRenderer& renderer_;
@@ -57,5 +60,5 @@ private:
 template<typename Container>
 inline void RequestHandler::AddBus(const std::string &name, const bool is_roundtrip, const Container &stops)
 {
-    catalogue_.AddBus(name, is_roundtrip ? RouteType::Circle : RouteType::Linear, stops);
+    catalogue_.AddBus(name, is_roundtrip ? RouteType::Roundtrip : RouteType::Linear, stops);
 }

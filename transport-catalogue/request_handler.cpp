@@ -1,5 +1,6 @@
 #include "request_handler.h"
 
+#include "serialization.h"
 /*
  * Здесь можно было бы разместить код обработчика запросов к базе, содержащего логику, которую не
  * хотелось бы помещать ни в transport_catalogue, ни в json reader.
@@ -52,4 +53,14 @@ void RequestHandler::SetRouterSettings(const int bus_wait_time, const int bus_ve
 std::optional<RouteInfo> RequestHandler::MakeRoute(const std::string &from_stop, const std::string &to_stop) const
 {
     return router_.MakeRoute(from_stop, to_stop);
+}
+
+void RequestHandler::Serialize(const std::string& path)
+{
+    serialize::Serialize(path, catalogue_);
+}
+
+void RequestHandler::Deserialize(const std::string& path)
+{
+    serialize::Deserialize(path, catalogue_);
 }
