@@ -24,7 +24,7 @@ class JsonReader{
 public:
     JsonReader(RequestHandler &handler);
 
-    json::Dict ParseRequest(std::istream &input = std::cin, std::ostream &output = std::cout);
+    json::Dict ParseRequest(std::istream &input = std::cin);
 
     void BaseRequestHandler(const Node &node);
     void StatRequestHandler(const Node &node, std::ostream &stream);

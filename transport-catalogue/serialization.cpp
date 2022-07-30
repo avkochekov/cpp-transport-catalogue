@@ -4,10 +4,65 @@
 #include "serialization.h"
 
 #include <transport_catalogue.pb.h>
+#include <map_renderer.pb.h>
+#include <svg.pb.h>
 
-void serialize::Serialize(const std::string &path, const catalogue::TransportCatalogue &t_catalogue)
+svg_serialize::Color SerializeColor(const svg::Color& other){
+    svg_serialize::Color color;
+    switch (other.index()) {
+    case 1:
+        color.set_name(std::get<std::string>(other));
+        break;
+    case 2: {
+        const svg::Rgb& r_color = std::get<svg::Rgb>(other);
+        color.mutable_rgb()->set_red(r_color.red);
+        color.mutable_rgb()->set_green(r_color.green);
+        color.mutable_rgb()->set_blue(r_color.blue);
+        break;
+    }
+    case 3:{
+        const svg::Rgba& r_color = std::get<svg::Rgba>(other);
+        color.mutable_rgba()->set_red(r_color.red);
+        color.mutable_rgba()->set_green(r_color.green);
+        color.mutable_rgba()->set_blue(r_color.blue);
+        color.mutable_rgba()->set_alpha(r_color.opacity);
+        break;
+    }
+    default:
+        break;
+    }
+    return color;
+}
+
+svg::Color DeserializeColor(const svg_serialize::Color& other){
+    svg::Color color;
+
+    switch (other.value_case()) {
+    case svg_serialize::Color::ValueCase::kName:
+        color = other.name();
+        break;
+    case svg_serialize::Color::ValueCase::kRgb:
+        color = svg::Rgb{
+                static_cast<uint8_t>(other.rgb().red()),
+                static_cast<uint8_t>(other.rgb().green()),
+                static_cast<uint8_t>(other.rgb().blue())};
+        break;
+    case svg_serialize::Color::ValueCase::kRgba:
+        color = svg::Rgba{
+                static_cast<uint8_t>(other.rgba().red()),
+                static_cast<uint8_t>(other.rgba().green()),
+                static_cast<uint8_t>(other.rgba().blue()),
+                other.rgba().alpha()};
+        break;
+    default:
+        break;
+    }
+    return color;
+}
+
+void serialize::Serialize(const std::string &path, const catalogue::TransportCatalogue &t_catalogue, const renderer::MapRenderer &t_renderer)
 {
-    std::ofstream outstream(path);
+    std::ofstream outstream(path, std::ios_base::binary);
     if (!outstream)
         return;
 
@@ -23,7 +78,6 @@ void serialize::Serialize(const std::string &path, const catalogue::TransportCat
         if (t_stop_coordinates){
             stop->mutable_coordinates()->set_latitude(t_stop_coordinates->lat);
             stop->mutable_coordinates()->set_longitude(t_stop_coordinates->lng);
-
         }
 
         // Дистанция между остановками
@@ -34,7 +88,7 @@ void serialize::Serialize(const std::string &path, const catalogue::TransportCat
 
             auto distance = stop->add_distance();
             distance->set_length(t_distance);
-            distance->set_stop(std::distance(t_stops.begin(), std::find(t_stops.begin(), t_stops.end(), t_stop_to)));
+            distance->set_stop(t_stop_to);
         }
     }
 
@@ -46,17 +100,46 @@ void serialize::Serialize(const std::string &path, const catalogue::TransportCat
         auto t_bus_stops = t_catalogue.GetBusStops(t_bus);
         if (t_bus_stops){
             for(const std::string& t_bus_stop : *t_bus_stops){
-                bus->add_stops(std::distance(t_stops.begin(), std::find(t_stops.begin(), t_stops.end(), t_bus_stop)));
+                bus->add_stops(t_bus_stop);
             }
         }
     }
 
-    catalogue.SerializePartialToOstream(&outstream);
+    // RENDERER
+
+    auto settings = catalogue.mutable_renderer();
+
+    const auto& r_settings = t_renderer.GetSettings();
+
+    settings->set_width(r_settings.width);
+    settings->set_height(r_settings.height);
+    settings->set_padding(r_settings.padding);
+    settings->set_line_width(r_settings.line_width);
+    settings->set_stop_radius(r_settings.stop_radius);
+    settings->set_underlayer_width(r_settings.underlayer_width);
+
+    settings->set_bus_label_font_size(r_settings.bus_label_font_size);
+    settings->set_stop_label_font_size(r_settings.stop_label_font_size);
+
+    settings->mutable_bus_label_offset()->set_x(r_settings.bus_label_offset.x);
+    settings->mutable_bus_label_offset()->set_y(r_settings.bus_label_offset.y);
+
+    settings->mutable_stop_label_offset()->set_x(r_settings.stop_label_offset.x);
+    settings->mutable_stop_label_offset()->set_y(r_settings.stop_label_offset.y);
+
+    *settings->mutable_underlayer_color() = SerializeColor(r_settings.underlayer_color);
+
+    for (const svg::Color& r_color : r_settings.color_palette){
+        *settings->add_color_palette() = SerializeColor(r_color);
+    }
+    settings->SerializePartialToOstream(&outstream);
+
+    catalogue.SerializeToOstream(&outstream);
 }
 
-void serialize::Deserialize(const std::string &path, catalogue::TransportCatalogue &t_catalogue)
+void serialize::Deserialize(const std::string &path, catalogue::TransportCatalogue &t_catalogue, renderer::MapRenderer &t_renderer)
 {
-    std::ifstream instream(path);
+    std::ifstream instream(path, std::ios_base::binary);
     if (!instream)
         return;
 
@@ -84,7 +167,7 @@ void serialize::Deserialize(const std::string &path, catalogue::TransportCatalog
             if (!distance.IsInitialized())
                 continue;
             t_catalogue.AddDistance(stop.name(),
-                                    std::string(stops[distance.stop()]),
+                                    distance.stop(),
                                     distance.length());
         }
     }
@@ -96,12 +179,46 @@ void serialize::Deserialize(const std::string &path, catalogue::TransportCatalog
         size_t bus_stops_size = bus.stops_size();
         std::vector<std::string> bus_stops(bus_stops_size);
         for (size_t i = 0; i < bus_stops_size; ++i){
-            bus_stops[i] = std::string(stops[bus.stops(i)]);
+            bus_stops[i] = bus.stops(i);
         }
 
         t_catalogue.AddBus(bus.name(),
                            bus.is_roundtrip() ? RouteType::Roundtrip : RouteType::Linear,
                            bus_stops);
     }
+
+    // RENDERER
+
+    auto settings = catalogue.renderer();
+
+    renderer::MapRenderSettings r_settings;
+
+    r_settings.width = settings.width();
+    r_settings.height = settings.height();
+    r_settings.padding = settings.padding();
+    r_settings.line_width = settings.line_width();
+    r_settings.stop_radius = settings.stop_radius();
+    r_settings.underlayer_width = settings.underlayer_width();
+
+    r_settings.bus_label_font_size = settings.bus_label_font_size();
+    r_settings.stop_label_font_size = settings.stop_label_font_size();
+
+    r_settings.bus_label_offset = svg::Point{
+            settings.bus_label_offset().x(),
+            settings.bus_label_offset().y()};
+
+    r_settings.stop_label_offset = svg::Point{
+            settings.stop_label_offset().x(),
+            settings.stop_label_offset().y()};
+
+    r_settings.underlayer_color = DeserializeColor(settings.underlayer_color());
+
+    size_t color_palette_size = settings.color_palette_size();
+    r_settings.color_palette.resize(color_palette_size);
+    for (size_t i = 0; i < color_palette_size; ++i){
+        r_settings.color_palette[i] = DeserializeColor(settings.color_palette(i));
+    }
+
+    t_renderer.SetSettings(r_settings);
 }
 

@@ -12,7 +12,7 @@ JsonReader::JsonReader(RequestHandler &handler)
     : handler{handler} {
 }
 
-json::Dict JsonReader::ParseRequest(std::istream &input, std::ostream &output)
+json::Dict JsonReader::ParseRequest(std::istream &input)
 {
     using namespace json;
     Document doc = json::Load(input);

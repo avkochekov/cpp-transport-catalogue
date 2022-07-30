@@ -57,10 +57,10 @@ std::optional<RouteInfo> RequestHandler::MakeRoute(const std::string &from_stop,
 
 void RequestHandler::Serialize(const std::string& path)
 {
-    serialize::Serialize(path, catalogue_);
+    serialize::Serialize(path, catalogue_, renderer_);
 }
 
 void RequestHandler::Deserialize(const std::string& path)
 {
-    serialize::Deserialize(path, catalogue_);
+    serialize::Deserialize(path, catalogue_, renderer_);
 }

@@ -5,7 +5,7 @@ package transport_catalogue_serialize;
 import "map_renderer.proto";
 
 message Distance{
-    string stop = 1;
+    bytes stop = 1;
     double length = 2;
 }
 
@@ -15,15 +15,15 @@ message Coordinates{
 }
 
 message Stop{
-    string name = 1;
+    bytes name = 1;
     Coordinates coordinates = 2;
     repeated Distance distance = 3;
 }
 
 message Bus{
-    string name = 1;
+    bytes name = 1;
     bool is_roundtrip = 2;
-    repeated string stops = 3;
+    repeated bytes stops = 3;
 }
 
 message Catalogue{

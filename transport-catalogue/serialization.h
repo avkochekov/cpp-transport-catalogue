@@ -4,8 +4,9 @@
 #include <string_view>
 
 #include "transport_catalogue.h"
+#include "map_renderer.h"
 
 namespace serialize{
-void Serialize(const std::string& path, const catalogue::TransportCatalogue& t_catalogue);
-void Deserialize(const std::string& path, catalogue::TransportCatalogue& t_catalogue);
+void Serialize(const std::string& path, const catalogue::TransportCatalogue& t_catalogue, const renderer::MapRenderer& t_renderer);
+void Deserialize(const std::string& path, catalogue::TransportCatalogue& t_catalogue, renderer::MapRenderer& t_renderer);
 }   // namespace serialize
