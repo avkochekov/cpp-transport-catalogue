@@ -1,29 +1,33 @@
 syntax = "proto3";
 
 package transport_catalogue_serialize;
+
+import "map_renderer.proto";
+
 message Distance{
-    int32 stop = 1;
+    string stop = 1;
     double length = 2;
-};
+}
 
 message Coordinates{
     double latitude = 1;
     double longitude = 2;
-};
+}
 
 message Stop{
     string name = 1;
     Coordinates coordinates = 2;
     repeated Distance distance = 3;
-};
+}
 
 message Bus{
     string name = 1;
     bool is_roundtrip = 2;
-    repeated int32 stops = 3;
-};
+    repeated string stops = 3;
+}
 
 message Catalogue{
     repeated Stop stops = 1;
     repeated Bus buses = 2;
-};
+    map_renderer_serialize.Settings renderer = 3;
+}
