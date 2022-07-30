@@ -83,7 +83,7 @@ void serialize::Serialize(const std::string &path, const catalogue::TransportCat
         // Дистанция между остановками
         for (const std::string& t_stop_to : t_stops){
             auto t_distance = t_catalogue.GetDistanceBetweenStops(t_stop, t_stop_to);
-            if (t_distance == 0)
+            if (t_distance == 0 || t_distance > catalogue::TransportCatalogue::maxRouteDistance)
                 continue;
 
             auto distance = stop->add_distance();

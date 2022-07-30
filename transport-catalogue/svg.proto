@@ -22,7 +22,7 @@ message Rgba{
 
 message Color {
     oneof value{
-        bytes name = 1;
+        string name = 1;
         Rgb rgb = 2;
         Rgba rgba = 3;
     }

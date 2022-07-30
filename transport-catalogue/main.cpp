@@ -16,7 +16,7 @@ void PrintUsage(std::ostream& stream = std::cerr) {
 
 int main(int argc, char* argv[]) {
 
-    std::string file_name = "s14_2_opentest_2";
+    std::string file_name = "s14_2_opentest_1";
 
     {
         const std::string_view mode("make_base");
@@ -34,9 +34,12 @@ int main(int argc, char* argv[]) {
         auto requests = reader.ParseRequest(istream);
 
         if (mode == "make_base"sv) {
-            reader.BaseRequestHandler(requests.at("base_requests"));
-            reader.RenderSettingsRequestHandler(requests.at("render_settings"));
-    //        reader.RoutingSettingsHandler(requests.at("routing_settings"));
+            if (requests.count("base_requests"))
+                reader.BaseRequestHandler(requests.at("base_requests"));
+            if (requests.count("render_settings"))
+                reader.RenderSettingsRequestHandler(requests.at("render_settings"));
+            if (requests.count("routing_settings"))
+                reader.RoutingSettingsHandler(requests.at("routing_settings"));
             handler.Serialize(reader.SerializationSettings(requests.at("serialization_settings")));
         } else if (mode == "process_requests"sv) {
             handler.Deserialize(reader.SerializationSettings(requests.at("serialization_settings")));

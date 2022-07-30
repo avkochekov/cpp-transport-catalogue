@@ -5,8 +5,6 @@
 #include <optional>
 #include <unordered_set>
 
-static constexpr unsigned int maxRouteDistance = 1'000'000;
-
 using namespace::catalogue;
 
 void TransportCatalogue::AddStop(const std::string_view name, const geo::Coordinates &coord)
@@ -23,7 +21,7 @@ void TransportCatalogue::AddDistance(const std::string_view from, const std::str
     assert(stopname_to_stop.count(to));
 
     if (l < 0 || l > maxRouteDistance){
-        throw std::invalid_argument("invalid distance value");
+        throw std::invalid_argument("invalid distance value: " + std::to_string(l) + " between " + std::string(from) + " and " + std::string(to));
     } else {
         stops_to_distance[{stopname_to_stop.at(from), stopname_to_stop.at(to)}] = l;
     }

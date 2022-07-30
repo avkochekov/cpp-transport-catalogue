@@ -36,6 +36,8 @@ namespace catalogue {
         };
 
     public:
+        static constexpr unsigned int maxRouteDistance = 1'000'000;
+
         ///[\brief] Добавление новой остановки
         void AddStop(const std::string_view name, const geo::Coordinates &);
         ///[\brief] Добавляет новоый маршрут

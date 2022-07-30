@@ -19,12 +19,6 @@ json::Dict JsonReader::ParseRequest(std::istream &input)
     const json::Node &node = doc.GetRoot();
 
     return node.AsDict();
-
-//    const json::Dict &requests = node.AsDict();
-//    BaseRequestHandler(requests.at("base_requests"));
-//    RenderSettingsRequestHandler(requests.at("render_settings"));
-//    RoutingSettingsHandler(requests.at("routing_settings"));
-//    StatRequestHandler(requests.at("stat_requests"), output);
 }
 
 
