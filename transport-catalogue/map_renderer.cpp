@@ -13,7 +13,7 @@ void renderer::MapRenderer::SetSettings(const MapRenderSettings &settings)
     this->settings = settings;
 }
 
-const renderer::MapRenderSettings &renderer::MapRenderer::GetSettings()
+const renderer::MapRenderSettings &renderer::MapRenderer::GetSettings() const
 {
     return settings;
 }

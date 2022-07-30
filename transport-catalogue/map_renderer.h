@@ -42,7 +42,7 @@ namespace renderer {
         MapRenderSettings settings;
     public:
         void SetSettings(const MapRenderSettings &settings);
-        const MapRenderSettings &GetSettings();
+        const MapRenderSettings &GetSettings() const;
 
         void RenderCatalogue(const catalogue::TransportCatalogue& catalogue, std::ostream &out);
 

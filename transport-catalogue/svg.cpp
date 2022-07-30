@@ -52,7 +52,7 @@ Circle& Circle::SetRadius(double radius)  {
 void Circle::RenderObject(const RenderContext& context) const {
     auto& out = context.out;
     out << "<circle cx=\""sv << center_.x << "\" cy=\""sv << center_.y << "\" "sv;
-    out << "r=\""sv << radius_ << "\" "sv;
+    out << "r=\""sv << radius_ << "\""sv;
     RenderAttrs(out);
     out << "/>"sv;
 }
@@ -159,7 +159,7 @@ void Document::Render(std::ostream &out) const
     out << "<svg xmlns=\"http://www.w3.org/2000/svg\" version=\"1.1\">"sv << std::endl;
 
     for(auto &obj_ptr : objects){
-        obj_ptr.get()->Render(out);
+        obj_ptr.get()->Render({out, 2, 2});
     }
 
     out << "</svg>"sv;
