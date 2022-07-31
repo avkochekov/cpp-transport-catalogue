@@ -234,19 +234,19 @@ Node JsonReader::StatRequestRoute(const json::Dict &dict)
         builder.Key("error_message").Value("not found");
     } else{
         Array array;
+        for(const RouteInfo::StopInfo& info: info->stops){
+            Dict dict;
+            dict["stop_name"]   = std::string(info.name);
+            dict["time"]        = info.time;
+            dict["type"]        = "Wait";
+            array.push_back(std::move(dict));
+        }
         for(const RouteInfo::BusInfo& info: info->buses){
             Dict dict;
             dict["bus"]         = std::string(info.name),
             dict["span_count"]  = static_cast<int>(info.span_count),
             dict["time"]        = info.time,
             dict["type"]        = "Bus";
-            array.push_back(std::move(dict));
-        }
-        for(const RouteInfo::StopInfo& info: info->stops){
-            Dict dict;
-            dict["stop_name"]   = std::string(info.name);
-            dict["time"]        = info.time;
-            dict["type"]        = "Wait";
             array.push_back(std::move(dict));
         }
         builder.Key("items").Value(std::move(array));

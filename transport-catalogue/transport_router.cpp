@@ -7,27 +7,24 @@ namespace router {
 
 static constexpr double SPEED_TRANSFORM_KOEFFICIENT = 1000.0 / 60.0;
 
-TransportRouter &TransportRouter::SetBusWaitTime(int value)
+TransportRouter &TransportRouter::SetBusWaitTime(double value)
 {
     bus_params_.wait_time = value;
     return *this;
 }
 
-TransportRouter &TransportRouter::SetBusVelocity(int value)
+TransportRouter &TransportRouter::SetBusVelocity(double value)
 {
     bus_params_.velocity = value;
     return *this;
 }
 
-void TransportRouter::RouteCatalog(catalogue::TransportCatalogue &catalogue)
+void TransportRouter::RouteCatalogue(catalogue::TransportCatalogue &catalogue)
 {
     using namespace graph;
 
-    stops_ = catalogue.GetStops();
-    buses_ = catalogue.GetBuses();
-
-    std::sort(stops_.begin(), stops_.end());
-    std::sort(buses_.begin(), buses_.end());
+    SetStops(catalogue.GetStops());
+    SetBuses(catalogue.GetBuses());
 
     graph_ = DirectedWeightedGraph<double>(stops_.size());
 
@@ -120,6 +117,58 @@ std::optional<RouteInfo> TransportRouter::MakeRoute(const std::string &from_stop
 
     }
     return route_info;
+}
+
+const graph::DirectedWeightedGraph<double> &TransportRouter::GetGraph() const
+{
+    return graph_;
+}
+
+graph::DirectedWeightedGraph<double> &TransportRouter::GetGraph()
+{
+    return graph_;
+}
+
+const TransportRouter::RouteParams& TransportRouter::GetRouteParams(const graph::EdgeId edge) const
+{
+    return route_info_.at(edge);
+}
+
+void TransportRouter::SetRouteParams(const graph::EdgeId edge_id, const RouteParams &params)
+{
+    route_info_[edge_id] = std::move(params);
+}
+
+void TransportRouter::SetStops(const std::vector<std::string> &stops)
+{
+    stops_ = std::move(stops);
+    std::sort(stops_.begin(), stops_.end());
+}
+
+void TransportRouter::SetBuses(const std::vector<std::string> &buses)
+{
+    buses_ = std::move(buses);
+    std::sort(buses_.begin(), buses_.end());
+}
+
+const std::vector<std::string> &TransportRouter::GetStops() const
+{
+    return stops_;
+}
+
+const std::vector<std::string> &TransportRouter::GetBuses() const
+{
+    return buses_;
+}
+
+double TransportRouter::GetBusWaitTime() const
+{
+    return bus_params_.wait_time;
+}
+
+double TransportRouter::GetBusVelocity() const
+{
+    return bus_params_.velocity;
 }
 
 } // namespace router

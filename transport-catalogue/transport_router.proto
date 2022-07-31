@@ -1,0 +1,17 @@
+syntax = "proto3";
+
+package router_serialize;
+
+import "graph.proto";
+
+message Graph{
+    repeated graph_serialize.Edge edges = 1;
+}
+
+message Settings{
+    double wait_time = 1;
+    double velocity = 2;
+    Graph graph = 3;
+}
+
+

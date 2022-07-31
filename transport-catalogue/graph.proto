@@ -1,0 +1,13 @@
+syntax = "proto3";
+
+package graph_serialize;
+
+message Edge{
+    uint32 index = 1;
+    uint32 from = 2;
+    uint32 to = 3;
+    uint32 bus = 4;
+    uint32 span_count = 5;
+    double time = 6;
+    double weight = 7;
+}

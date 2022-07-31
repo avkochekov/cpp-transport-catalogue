@@ -1,3 +1,5 @@
+#pragma once
+
 #include "transport_catalogue.h"
 
 #include "graph.h"
@@ -33,10 +35,26 @@ class TransportRouter{
     };
 
 public:
-    TransportRouter& SetBusWaitTime(int);
-    TransportRouter& SetBusVelocity(int);
-    void RouteCatalog(catalogue::TransportCatalogue& catalogue);
+    TransportRouter& SetBusWaitTime(double);
+    TransportRouter& SetBusVelocity(double);
+    void RouteCatalogue(catalogue::TransportCatalogue& catalogue);
     std::optional<RouteInfo> MakeRoute(const std::string& from_stop, const std::string& to_stop);
+
+    const graph::DirectedWeightedGraph<double>& GetGraph() const;
+    graph::DirectedWeightedGraph<double> &GetGraph();
+
+    const RouteParams &GetRouteParams(const graph::EdgeId) const;
+    void SetRouteParams(const graph::EdgeId edge_id, const RouteParams& params);
+
+    void SetStops(const std::vector<std::string>& stops);
+    void SetBuses(const std::vector<std::string>& buses);
+
+    const std::vector<std::string>& GetStops() const;
+    const std::vector<std::string>& GetBuses() const;
+
+    double GetBusWaitTime() const;
+    double GetBusVelocity() const;
+
 
 private:
     struct {

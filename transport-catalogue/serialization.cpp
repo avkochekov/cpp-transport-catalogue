@@ -60,7 +60,7 @@ svg::Color DeserializeColor(const svg_serialize::Color& other){
     return color;
 }
 
-void serialize::Serialize(const std::string &path, const catalogue::TransportCatalogue &t_catalogue, const renderer::MapRenderer &t_renderer)
+void serialize::Serialize(const std::string &path, const catalogue::TransportCatalogue& t_catalogue, const renderer::MapRenderer& t_renderer, const router::TransportRouter& t_router)
 {
     std::ofstream outstream(path, std::ios_base::binary);
     if (!outstream)
@@ -134,10 +134,36 @@ void serialize::Serialize(const std::string &path, const catalogue::TransportCat
     }
     settings->SerializePartialToOstream(&outstream);
 
+    // ROUTER
+
+    auto router = catalogue.mutable_router();
+
+    router->set_wait_time(t_router.GetBusWaitTime());
+    router->set_velocity(t_router.GetBusVelocity());
+
+    auto graph = router->mutable_graph();
+    auto t_graph = t_router.GetGraph();
+
+    for(size_t i = 0; i < t_graph.GetEdgeCount(); ++i){
+        auto edge = graph->add_edges();
+        const auto& t_edge = t_graph.GetEdge(i);
+        edge->set_index(i);
+        edge->set_from(t_edge.from);
+        edge->set_to(t_edge.to);
+        edge->set_weight(t_edge.weight);
+
+        const auto& t_buses = t_router.GetBuses();
+        const auto& t_route_param = t_router.GetRouteParams(i);
+        auto distance = std::distance(t_buses.begin(), std::find(t_buses.begin(), t_buses.end(), t_route_param.bus));
+        edge->set_bus(distance);
+        edge->set_span_count(t_route_param.span_count);
+        edge->set_time(t_route_param.time);
+    }
+
     catalogue.SerializeToOstream(&outstream);
 }
 
-void serialize::Deserialize(const std::string &path, catalogue::TransportCatalogue &t_catalogue, renderer::MapRenderer &t_renderer)
+void serialize::Deserialize(const std::string &path, catalogue::TransportCatalogue& t_catalogue, renderer::MapRenderer& t_renderer, router::TransportRouter& t_router)
 {
     std::ifstream instream(path, std::ios_base::binary);
     if (!instream)
@@ -188,37 +214,64 @@ void serialize::Deserialize(const std::string &path, catalogue::TransportCatalog
     }
 
     // RENDERER
+    {
+        auto settings = catalogue.renderer();
 
-    auto settings = catalogue.renderer();
+        renderer::MapRenderSettings r_settings;
 
-    renderer::MapRenderSettings r_settings;
+        r_settings.width = settings.width();
+        r_settings.height = settings.height();
+        r_settings.padding = settings.padding();
+        r_settings.line_width = settings.line_width();
+        r_settings.stop_radius = settings.stop_radius();
+        r_settings.underlayer_width = settings.underlayer_width();
 
-    r_settings.width = settings.width();
-    r_settings.height = settings.height();
-    r_settings.padding = settings.padding();
-    r_settings.line_width = settings.line_width();
-    r_settings.stop_radius = settings.stop_radius();
-    r_settings.underlayer_width = settings.underlayer_width();
+        r_settings.bus_label_font_size = settings.bus_label_font_size();
+        r_settings.stop_label_font_size = settings.stop_label_font_size();
 
-    r_settings.bus_label_font_size = settings.bus_label_font_size();
-    r_settings.stop_label_font_size = settings.stop_label_font_size();
+        r_settings.bus_label_offset = svg::Point{
+                settings.bus_label_offset().x(),
+                settings.bus_label_offset().y()};
 
-    r_settings.bus_label_offset = svg::Point{
-            settings.bus_label_offset().x(),
-            settings.bus_label_offset().y()};
+        r_settings.stop_label_offset = svg::Point{
+                settings.stop_label_offset().x(),
+                settings.stop_label_offset().y()};
 
-    r_settings.stop_label_offset = svg::Point{
-            settings.stop_label_offset().x(),
-            settings.stop_label_offset().y()};
+        r_settings.underlayer_color = DeserializeColor(settings.underlayer_color());
 
-    r_settings.underlayer_color = DeserializeColor(settings.underlayer_color());
+        size_t color_palette_size = settings.color_palette_size();
+        r_settings.color_palette.resize(color_palette_size);
+        for (size_t i = 0; i < color_palette_size; ++i){
+            r_settings.color_palette[i] = DeserializeColor(settings.color_palette(i));
+        }
 
-    size_t color_palette_size = settings.color_palette_size();
-    r_settings.color_palette.resize(color_palette_size);
-    for (size_t i = 0; i < color_palette_size; ++i){
-        r_settings.color_palette[i] = DeserializeColor(settings.color_palette(i));
+        t_renderer.SetSettings(r_settings);
     }
 
-    t_renderer.SetSettings(r_settings);
+    // ROUTER
+    {
+        auto settings = catalogue.router();
+
+        t_router.SetBusWaitTime(settings.wait_time());
+        t_router.SetBusVelocity(settings.velocity());
+
+        t_router.SetStops(t_catalogue.GetStops());
+        t_router.SetBuses(t_catalogue.GetBuses());
+
+        auto t_graph = graph::DirectedWeightedGraph<double>(t_router.GetStops().size());
+        for (size_t i = 0; i < settings.graph().edges_size(); ++i){
+            auto edge = settings.graph().edges(i);
+            t_graph.AddEdge({edge.from(),
+                             edge.to(),
+                             edge.weight()});
+            t_router.SetRouteParams(i, {t_router.GetStops().at(edge.from()),
+                                        t_router.GetStops().at(edge.to()),
+                                        t_router.GetBuses().at(edge.bus()),
+                                        edge.span_count(),
+                                        edge.time()});
+        }
+
+        t_router.GetGraph() = t_graph;
+    }
 }
 

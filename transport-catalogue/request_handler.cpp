@@ -47,7 +47,7 @@ void RequestHandler::RenderMap(std::ostream &stream) const
 void RequestHandler::SetRouterSettings(const int bus_wait_time, const int bus_velocity)
 {
     router_.SetBusWaitTime(bus_wait_time).SetBusVelocity(bus_velocity);
-    router_.RouteCatalog(catalogue_);
+    router_.RouteCatalogue(catalogue_);
 }
 
 std::optional<RouteInfo> RequestHandler::MakeRoute(const std::string &from_stop, const std::string &to_stop) const
@@ -57,10 +57,10 @@ std::optional<RouteInfo> RequestHandler::MakeRoute(const std::string &from_stop,
 
 void RequestHandler::Serialize(const std::string& path)
 {
-    serialize::Serialize(path, catalogue_, renderer_);
+    serialize::Serialize(path, catalogue_, renderer_, router_);
 }
 
 void RequestHandler::Deserialize(const std::string& path)
 {
-    serialize::Deserialize(path, catalogue_, renderer_);
+    serialize::Deserialize(path, catalogue_, renderer_, router_);
 }
