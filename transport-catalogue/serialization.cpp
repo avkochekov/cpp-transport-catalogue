@@ -51,7 +51,7 @@ svg::Color DeserializeColor(const svg_serialize::Color& other){
     return color;
 }
 
-void serialize::Serialize(transport_catalogue_serialize::Catalogue& catalogue, const catalogue::TransportCatalogue &t_catalogue)
+void serialize::SerializeCatalogue(transport_catalogue_serialize::Catalogue& catalogue, const catalogue::TransportCatalogue &t_catalogue)
 {
     const auto& t_stops = t_catalogue.GetStops();
 
@@ -92,7 +92,7 @@ void serialize::Serialize(transport_catalogue_serialize::Catalogue& catalogue, c
     }
 }
 
-void serialize::Serialize(transport_catalogue_serialize::Catalogue& tc, const renderer::MapRenderer &t_renderer)
+void serialize::SerializeRenderer(transport_catalogue_serialize::Catalogue& tc, const renderer::MapRenderer &t_renderer)
 {
     auto settings = tc.mutable_renderer();
 
@@ -121,7 +121,7 @@ void serialize::Serialize(transport_catalogue_serialize::Catalogue& tc, const re
     }
 }
 
-void serialize::Serialize(transport_catalogue_serialize::Catalogue& tc, const router::TransportRouter &t_router)
+void serialize::SerializeRouter(transport_catalogue_serialize::Catalogue& tc, const router::TransportRouter &t_router)
 {
     auto settings = tc.mutable_router();
 
@@ -156,7 +156,7 @@ void serialize::Serialize(transport_catalogue_serialize::Catalogue& tc, const ro
     }
 }
 
-void serialize::Deserialize(const transport_catalogue_serialize::Catalogue& catalogue, catalogue::TransportCatalogue &t_catalogue)
+void serialize::DeserializeCatalogue(const transport_catalogue_serialize::Catalogue& catalogue, catalogue::TransportCatalogue &t_catalogue)
 {
     size_t buses_size = catalogue.buses_size();
     size_t stops_size = catalogue.stops_size();
@@ -200,7 +200,7 @@ void serialize::Deserialize(const transport_catalogue_serialize::Catalogue& cata
     }
 }
 
-void serialize::Deserialize(const transport_catalogue_serialize::Catalogue& tc, renderer::MapRenderer &t_renderer)
+void serialize::DeserializeRenderer(const transport_catalogue_serialize::Catalogue& tc, renderer::MapRenderer &t_renderer)
 {
     auto settings = tc.renderer();
 
@@ -235,7 +235,7 @@ void serialize::Deserialize(const transport_catalogue_serialize::Catalogue& tc, 
     t_renderer.SetSettings(r_settings);
 }
 
-void serialize::Deserialize(const transport_catalogue_serialize::Catalogue& tc, router::TransportRouter &t_router)
+void serialize::DeserializeRouter(const transport_catalogue_serialize::Catalogue& tc, router::TransportRouter &t_router)
 {
     auto settings = tc.router();
 
