@@ -44,6 +44,7 @@ public:
     graph::DirectedWeightedGraph<double> &GetGraph();
 
     const RouteParams &GetRouteParams(const graph::EdgeId) const;
+    const size_t GetRouteParamsCount() const;
     void SetRouteParams(const graph::EdgeId edge_id, const RouteParams& params);
 
     void SetStops(const std::vector<std::string>& stops);

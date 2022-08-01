@@ -134,6 +134,11 @@ const TransportRouter::RouteParams& TransportRouter::GetRouteParams(const graph:
     return route_info_.at(edge);
 }
 
+const size_t TransportRouter::GetRouteParamsCount() const
+{
+    return route_info_.size();
+}
+
 void TransportRouter::SetRouteParams(const graph::EdgeId edge_id, const RouteParams &params)
 {
     route_info_[edge_id] = std::move(params);

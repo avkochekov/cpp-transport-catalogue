@@ -1,6 +1,9 @@
 #include "request_handler.h"
 
 #include "serialization.h"
+
+#include <fstream>
+#include <sstream>
 /*
  * Здесь можно было бы разместить код обработчика запросов к базе, содержащего логику, которую не
  * хотелось бы помещать ни в transport_catalogue, ни в json reader.
@@ -57,10 +60,29 @@ std::optional<RouteInfo> RequestHandler::MakeRoute(const std::string &from_stop,
 
 void RequestHandler::Serialize(const std::string& path)
 {
-    serialize::Serialize(path, catalogue_, renderer_, router_);
+    std::ofstream stream(path, std::ofstream::out | std::ofstream::trunc | std::ostream::binary);
+
+    transport_catalogue_serialize::Catalogue data;
+
+    serialize::Serialize(data, catalogue_);
+    serialize::Serialize(data, renderer_);
+    serialize::Serialize(data, router_);
+
+    data.SerializeToOstream(&stream);
+
+    stream.close();
 }
 
 void RequestHandler::Deserialize(const std::string& path)
 {
-    serialize::Deserialize(path, catalogue_, renderer_, router_);
+    std::ifstream stream(path, std::ifstream::in | std::ostream::binary);
+
+    transport_catalogue_serialize::Catalogue data;
+    data.ParseFromIstream(&stream);
+
+    serialize::Deserialize(data, catalogue_);
+    serialize::Deserialize(data, renderer_);
+    serialize::Deserialize(data, router_);
+
+    stream.close();
 }

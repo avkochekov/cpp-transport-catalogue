@@ -2,16 +2,20 @@ syntax = "proto3";
 
 package router_serialize;
 
-import "graph.proto";
-
-message Graph{
-    repeated graph_serialize.Edge edges = 1;
+message RouteInfo{
+    uint32 index = 1;
+    uint32 from = 2;
+    uint32 to = 3;
+    uint32 bus = 4;
+    uint32 span_count = 5;
+    double time = 6;
 }
 
 message Settings{
     double wait_time = 1;
     double velocity = 2;
-    Graph graph = 3;
+
+    repeated RouteInfo routes = 5;
 }
 
 

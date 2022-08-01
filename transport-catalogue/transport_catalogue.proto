@@ -4,6 +4,7 @@ package transport_catalogue_serialize;
 
 import "map_renderer.proto";
 import "transport_router.proto";
+import "graph.proto";
 
 message Distance{
     string stop = 1;
@@ -30,6 +31,8 @@ message Bus{
 message Catalogue{
     repeated Stop stops = 1;
     repeated Bus buses = 2;
+
     map_renderer_serialize.Settings renderer = 3;
     router_serialize.Settings router = 4;
+    graph_serialize.Graph graph = 5;
 }

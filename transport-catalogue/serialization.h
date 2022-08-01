@@ -7,7 +7,16 @@
 #include "map_renderer.h"
 #include "transport_router.h"
 
+#include <transport_catalogue.pb.h>
+
 namespace serialize{
-void Serialize(const std::string& path, const catalogue::TransportCatalogue& t_catalogue, const renderer::MapRenderer& t_renderer, const router::TransportRouter& t_router);
-void Deserialize(const std::string& path, catalogue::TransportCatalogue& t_catalogue, renderer::MapRenderer& t_renderer, router::TransportRouter& t_router);
+
+void Serialize(transport_catalogue_serialize::Catalogue &Catalogue, const catalogue::TransportCatalogue& t_catalogue);
+void Serialize(transport_catalogue_serialize::Catalogue &Catalogue, const renderer::MapRenderer& t_renderer);
+void Serialize(transport_catalogue_serialize::Catalogue &Catalogue, const router::TransportRouter& t_router);
+
+void Deserialize(const transport_catalogue_serialize::Catalogue &Catalogue, catalogue::TransportCatalogue& t_catalogue);
+void Deserialize(const transport_catalogue_serialize::Catalogue &Catalogue, renderer::MapRenderer& t_renderer);
+void Deserialize(const transport_catalogue_serialize::Catalogue &Catalogue, router::TransportRouter& t_router);
+
 }   // namespace serialize
