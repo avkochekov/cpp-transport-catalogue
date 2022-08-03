@@ -11,12 +11,12 @@
 
 namespace serialize{
 
-void Serialize(transport_catalogue_serialize::Catalogue &Catalogue, const catalogue::TransportCatalogue& t_catalogue);
-void Serialize(transport_catalogue_serialize::Catalogue &Catalogue, const renderer::MapRenderer& t_renderer);
-void Serialize(transport_catalogue_serialize::Catalogue &Catalogue, const router::TransportRouter& t_router);
+void SerializeCatalogue(transport_catalogue_serialize::Catalogue &Catalogue, const catalogue::TransportCatalogue& t_catalogue);
+void SerializeRenderer(transport_catalogue_serialize::Catalogue &Catalogue, const renderer::MapRenderer& t_renderer);
+void SerializeRouter(transport_catalogue_serialize::Catalogue &Catalogue, const router::TransportRouter& t_router);
 
-void Deserialize(const transport_catalogue_serialize::Catalogue &Catalogue, catalogue::TransportCatalogue& t_catalogue);
-void Deserialize(const transport_catalogue_serialize::Catalogue &Catalogue, renderer::MapRenderer& t_renderer);
-void Deserialize(const transport_catalogue_serialize::Catalogue &Catalogue, router::TransportRouter& t_router);
+void DeserializeCatalogue(const transport_catalogue_serialize::Catalogue &Catalogue, catalogue::TransportCatalogue& t_catalogue);
+void DeserializeRenderer(const transport_catalogue_serialize::Catalogue &Catalogue, renderer::MapRenderer& t_renderer);
+void DeserializeRouter(const transport_catalogue_serialize::Catalogue &Catalogue, router::TransportRouter& t_router);
 
 }   // namespace serialize
